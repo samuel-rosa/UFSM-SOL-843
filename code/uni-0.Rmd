@@ -78,7 +78,7 @@ Outra importante funcionalidade do git -- comparado aos demais sistemas de contr
 
 Passemos então à instalação e uso do git!
 
-Para verificar se você já tem o git instalado em seu computador, acesse o Terminal -- painel esquerdo inferior do RStudio -- e emita as linhas de comando abaixo conforme o seu sistema operacional:
+Para verificar se você já tem o git instalado em seu computador, acesse o terminal -- painel esquerdo inferior do RStudio -- e emita as linhas de comando abaixo conforme o seu sistema operacional:
 
 ```{bash, eval=FALSE}
 # Verificação da instalação do git
@@ -89,7 +89,7 @@ git --version
 
 Se o git estiver instalado, o primeiro comando (`which git`, em Linux e Mac, ou `where git`, em Windows) deverá retornar o caminho para o diretório onde os arquivos do git estão localizados -- por exemplo, `/usr/bin/git` --, enquanto o segundo comando mostra a versão do git que está instalada -- por exemplo, `git version 2.7.4`. Caso você não tenha o git instalado em seu computador, vá até o endereço https://git-scm.com/downloads e descarregue o instalador e estude as diretrizes de instalação para o seu sistema operacional.
 
-Depois de instalado o git, precisamos fazer a sua configuração. Trata-se de informar seu nome e endereço de e-mail para o git. Isso é necessário porque o git registra esses dados à cada edição submetida ao controle de versão. Apesar da pequena utilidade quando trabalhamos sozinhos, essa prática é da maior importância quando duas ou mais pessoas colaboram na edição do código fonte, permitindo identificar quem fez cada alteração. Para configurar o seu nome e endereço de e-mail no git, acesse o Terminal -- painel esquerdo inferior do RStudio -- e emita as duas linhas de comando abaixo substituindo com seus dados os campos pertinentes:
+Depois de instalado o git, precisamos fazer a sua configuração. Trata-se de informar seu nome e endereço de e-mail para o git. Isso é necessário porque o git registra esses dados à cada edição submetida ao controle de versão. Apesar da pequena utilidade quando trabalhamos sozinhos, essa prática é da maior importância quando duas ou mais pessoas colaboram na edição do código fonte, permitindo identificar quem fez cada alteração. Para configurar o seu nome e endereço de e-mail no git, acesse o terminal -- painel esquerdo inferior do RStudio -- e emita as duas linhas de comando abaixo substituindo com seus dados os campos pertinentes:
 
 ```{bash, eval=FALSE}
 # Configuração do git
@@ -103,7 +103,7 @@ A maneira mais fácil de utilizar o git para o gerenciamento e controle de vers�
 knitr::include_graphics("../images/rstudio-novo-projeto-git.png")
 ```
 
-O diretório do novo projeto do RStudio deverá conter uma estrutura com a mostrada abaixo (pode ser preciso habilitar a visualização de arquivos ocultos em seu gerenciador de arquivos):
+O diretório do `meu-novo-projeto` do RStudio, criado como subdiretório de `tmp`, deverá conter uma estrutura de arquivos como a mostrada abaixo (pode ser preciso habilitar a visualização de arquivos ocultos em seu gerenciador de arquivos):
 
     meu-novo-projeto/
     |- .git/
@@ -113,7 +113,7 @@ O diretório do novo projeto do RStudio deverá conter uma estrutura com a mostr
 
 Tando o subdiretório `.Rproj.user` como o arquivo `meu-novo-projeto.Rproj` já foram descritos anteriormente. O que temos de novidade aqui são o subdiretório `.git` e o arquivo `.gitignore`. O subdiretório `.git` consiste no repositório local onde as edições submetidas ao git são registradas. Já o arquivo `.gitignore` serve para identificar os arquivos e subdiretórios que devem ser, como o próprio nome sugere, ignorados pelo git. É o caso, por exemplo, de um subdiretório temporário criado para armazenar produtos do projeto que podem mudar a cada instante e serem descartados a qualquer momento.
 
-Agora, no Terminal, emita o comando `git status` para acessar as informações sobre o estado atual do git:
+Agora, no terminal, emita o comando `git status` para acessar as informações sobre o estado atual do git:
 
 ```{bash, eval=FALSE}
 # Verificação do estado atual do git
@@ -134,7 +134,7 @@ O resultado impresso no terminal deve ser aproximadamente o seguinte:
 
     nothing added to commit but untracked files present (use "git add" to track)
 
-A primeira informação é de que estamos operando no ramo `master` do git. Ademais, temos a informação de que existem dois arquivos não monitorados pelo git: `.gitignore` e `meu-novo-projeto.Rproj`. Para iniciar o monitoramento desses arquivos, acessamos a aba `Git` no painel superior direito to RStudio e habilitamos as caixas sob o item `Staged`, o que fará o símbolo sob o item `Status` passar de um sinal de interrogoção amarelo para um `A` verde (adicionar, do inglês *add*).
+A primeira informação é de que estamos operando no ramo `master` do git. Ademais, temos a informação de que existem dois arquivos não monitorados pelo git: `.gitignore` e `meu-novo-projeto.Rproj`. Para iniciar o monitoramento desses arquivos, acessamos a aba `Git` no painel superior direito to RStudio e habilitamos as caixas sob o item `Staged`, o que fará o símbolo sob o item `Status` passar de um sinal de interrogação amarelo para um `A` verde (adicionar, do inglês *add*).
 
 ```{r rstudio-git-add, echo=FALSE, fig.cap="Adicionando arquivos ao monitoramento do git.", out.width='50%', fig.align='center'}
 knitr::include_graphics("../images/rstudio-git-add.png")
@@ -142,6 +142,6 @@ knitr::include_graphics("../images/rstudio-git-add.png")
 
 Em seguida acessamos o item `Commit` e, na janela que abrir, inserirmos uma mensagem (`Commit message`) descrevendo o tipo de edição feita no projeto. Nesse caso, a edição consistiu na criação de um novo projeto do RStudio usando git para controle de versão (Figura \@ref(fig:rstudio-git-commit)). Feito isso basta pressionar o botão `Commit`.
 
-```{r rstudio-git-commit, echo=FALSE, fig.cap="Submissão de edição ao git.", out.width='50%', fig.align='center'}
+```{r rstudio-git-commit, echo=FALSE, fig.cap="Submissão de edição ao git usando o comando `commit`.", out.width='50%', fig.align='center'}
 knitr::include_graphics("../images/rstudio-git-commit.png")
 ```

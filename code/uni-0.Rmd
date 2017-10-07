@@ -67,7 +67,7 @@ A estratégia de controle de versão mais comumente usada consiste em manter uma
 
 Segundo a estratégia acima, cada arquivo é nomeado de acordo com o estágio de desenvolvimento e fazendo uma referência generalista ao tipo de alteração feita. Isso pode ser eficiente quando fazemos poucas alterações ou então alterações pouco significativas. Contudo, à medida que aumenta a complexidade de nosso projeto, maior será o número de edições no código fonte e, também, maior será a complexidade delas. Felizmente existem alternativas bastante mais eficientes do que aquela mostrada acima. Na verdade, um bom sistema de controle de versão dará conta do registro e organização das diferentes versões do código fonte de maneira completamente automática.
 
-## git & GitHub
+## git
 
 Um dos sistemas mais populares de gerenciamento e controle de versão de código fonte é o [git][git]. Comparado aos outros sistemas de controle de versão, uma das grandes vantagens do git é o fato de ser de fácil instalação e poder ser utilizado localmente, sem necessidade de conexão permanente a um servidor remoto. Isso é possível porque o git  realiza todas as operações de gerenciamento do código fonte localmente. Basta submeter (em inglês, *commit*) ao git toda e qualquer edição importante, associando à ela uma mensagem descritiva. Além da importância para o uso pessoal, essa funcionalidade também é muito importante quando temos acesso limitado ou intermitente ao [repositório remoto][github] onde publicamos e compartilhamos o código fonte (por exemplo, por limitada conexão à Internet).
 
@@ -145,3 +145,11 @@ Em seguida acessamos o item `Commit` e, na janela que abrir, inserirmos uma mens
 ```{r rstudio-git-commit, echo=FALSE, fig.cap="Submissão de edição ao git usando o comando `commit`.", out.width='50%', fig.align='center'}
 knitr::include_graphics("../images/rstudio-git-commit.png")
 ```
+
+## GitHub
+
+O [GitHub][github] é uma das plataformas mais populares para hospedagem de código fonte, sobretudo entre os usuários e desenvolvedores de pacotes para o R.
+
+[github]: https://github.com/
+
+Acesse a página do GitHub na Internet (https://github.com/) para criar sua conta.

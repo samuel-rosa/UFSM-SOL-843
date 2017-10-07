@@ -1,0 +1,274 @@
+---
+title: "Variação espacial"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Carregar alguns pacotes
+library(magrittr) # %>% 
+library(dplyr)
+library(lattice)
+
+# Definir variáveis
+# http://spatialreference.org/ref/epsg/
+wgs84utm22s <- sp::CRS('+proj=utm +zone=22 +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
+wgs84 <- sp::CRS('+proj=longlat +ellps=WGS84')
+
+# Rampas de cores
+col_soil_var <- topo.colors(100)
+```
+
+# Natureza da variação espacial
+
+# Modelo discreto de variação espacial
+
+## Modelo discreto: visão determinística
+
+<!-- $$Solo = f(cl, o, r, p, t, \ldots)$$ -->
+ Carregar o mapa pedológico e gerar figura. No MS Windows, usar o argumento `encoding = 'UTF-8'` na função `raster::shapefile` para reconhecer carácteres especiais.
+ 
+```{r}
+pedologia25 <- 
+  raster::shapefile('../data/pedologia25.shp', stringsAsFactors = TRUE, encoding = 'UTF-8') %>% 
+  sp::spTransform(wgs84utm22s)
+sp::spplot(
+  pedologia25, scales = list(draw = TRUE), 
+  col.regions = terrain.colors(nlevels(pedologia25$um)),
+  main = "Mapa pedológico")
+```
+
+Descarregar dados do conjunto de dados `ctbo0030`:
+
+```{r, message=FALSE, warning=FALSE}
+perfis25_o <- febr::observations('ctb0030', which.cols = 'all')
+perfis25_l <- febr::layers('ctb0030', which.cols = 'all', missing.data = 'keep')
+id <- c('dataset_id', 'observacao_id')
+perfis25 <- 
+  merge(x = perfis25_o, y = perfis25_l, by.x = id, by.y = id) %>% 
+  select(observacao_id, coord_x, coord_y, taxon_sibcs_2009, ca_kcl_aas, areia_, argila_)
+rm(perfis25_l, perfis25_o)
+```
+
+Criar objeto espacial com os perfis e gerar figura.
+
+```{r}
+sp::coordinates(perfis25) <- c('coord_x', 'coord_y')
+sp::proj4string(perfis25) <- wgs84
+perfis25 <- sp::spTransform(perfis25, wgs84utm22s)
+sp::spplot(
+  pedologia25, scales = list(draw = TRUE),
+  xlim = extendrange(c(perfis25@bbox[1, ], pedologia25@bbox[1, ])),
+  ylim = extendrange(c(perfis25@bbox[2, ], pedologia25@bbox[2, ])),
+  col.regions = terrain.colors(nlevels(pedologia25$um)),
+  main = "Localização dos perfis modais") +
+  lattice::xyplot(coord_y ~ coord_x, data = as.data.frame(perfis25@coords), 
+                  pch = 20, col = 'red', lwd = 2, cex = 2) %>% 
+  latticeExtra::as.layer()
+```
+
+```{r, echo=FALSE}
+perfis25@data
+```
+
+## Modelo discreto: visão estocástica
+
+<!-- $$Y(\boldsymbol{s}) = m(\boldsymbol{s}) + \epsilon(\boldsymbol{s})$$ -->
+
+```{r, message=FALSE, warning=FALSE}
+pontos400_o <- febr::observations('ctb0003', which.cols = 'all')pontos400_l <- febr::layers('ctb0003', which.cols = 'all', missing.data = 'keep')
+id <- c('dataset_id', 'observacao_id')
+pontos400 <- 
+  merge(pontos400_o, pontos400_l, by.x = id, by.y = id) %>% 
+  select(observacao_id, coord_x, coord_y, taxon_sibcs_2009, ca_kcl_aas, argila_, areia_)
+rm(pontos400_l, pontos400_o)
+```
+
+```{r}
+sp::coordinates(pontos400) <- ~ coord_x + coord_y
+sp::proj4string(pontos400) <- wgs84
+pontos400 <- sp::spTransform(pontos400, wgs84utm22s)
+sp::spplot(
+  pedologia25, scales = list(draw = TRUE),  
+  col.regions = terrain.colors(nlevels(pedologia25$um)),
+  main = "Localização das 400 observações") +
+  lattice::xyplot(coord_y ~ coord_x, 
+                  data = pontos400@coords %>% as.data.frame(), pch = 21, col = 'red') %>% 
+  latticeExtra::as.layer()
+```
+
+Nós podemos calcular a média e desvio padrão da variável de interesse para cada categoria a partir das observações do solo que estão dentro de cada categoria. Mas primeiro temos que identificar a categoria dentro da qual cada observação do solo se encontra. Para isso usamos a função `sp::over` e armazenamos o resultado em uma nova coluna de `pontos400` chamada `um`. Assumindo que nossa amostra é grande o suficiente, que as observações são independetes, e que a variável de interesse possui distribuição nomal, calculamos o erro padrão (EP) da média para obter os limites inferior e superior do intervalo de confiança de 95%.
+
+<!-- $$EP = \frac{DP}{\sqrt{n}}$$ -->
+
+Calcular estatísticas de uma variável do solo para cada unidade de mapeamento.
+
+```{r}
+pontos400$um <- sp::over(x = pontos400, y = pedologia25) %>% unlist()
+pontos400@data %>% 
+  filter(!is.na(um)) %>%
+  group_by(um) %>%
+  summarise(
+    media = mean(areia_),
+    ic95 = 1.96 * sd(areia_) / sqrt(n()),
+    n = n()) %>% 
+  mutate(
+    inf = round(media - ic95),
+    media = round(media),
+    sup = round(media + ic95)) %>% 
+  select(um, inf, media, sup, n)
+```
+
+Vamos comparar o resultado acima com os valores obtidos diretamente dos perfis modais. Será que os dados produzidos a partir dos perfis modais encontram-se dentro do intervalo de confiança de 95% da média estimada acima?
+
+```{r}
+perfis25@data %>% 
+  select(taxon_sibcs_2009, areia_) %>% 
+  arrange(taxon_sibcs_2009)
+```
+
+# Modelo contínuo de variação espacial
+
+## Modelo contínuo: visão determinística
+
+Modelos digitais de elevação: http://www.scielo.br/img/revistas/rbcs/v40//0100-0683-rbcs-18069657rbcs20150022-gf02.jpg
+
+Perfil topográfico de modelos digitais de elevação: http://www.scielo.br/img/revistas/rbcs/v40//0100-0683-rbcs-18069657rbcs20150022-gf03.jpg
+
+Interpolação determinística usando o inverso da distância como peso da influência das observações vizinhas.
+
+```{r}
+grid <- sp::spsample(pedologia25, 10000, type = 'regular')
+modelo_idw <- gstat::gstat(
+  id = 'argila', formula = argila_ ~ 1, 
+  data = pontos400, nmax = 8, set = list(idp = 0.5))
+mapa_idw <- predict(modelo_idw, grid)
+sp::gridded(mapa_idw) <- TRUE
+sp::spplot(mapa_idw, 'argila.pred', col.regions = col_soil_var, 
+           main = "Interpolação determinística") +
+  latticeExtra::as.layer(lattice::xyplot(
+    coord_y ~ coord_x, data = pontos400@coords %>% as.data.frame(), 
+    pch = 21, col = 'red', cex = 0.5))
+```
+
+## Modelo contínuo: visão estocástica
+
+Vamos retomar o gráfico de bolhas para observar a existência de dependência espacial entre os valores da variável de interesse das observações do solo.
+
+```{r}
+sp::bubble(pontos400, 'ca_kcl_aas')
+```
+
+Como quantificar a dependência espacial?
+
+Semivariograma (nuvem)
+
+```{r}
+variograma <- gstat::variogram(ca_kcl_aas ~ 1, pontos400, cloud = TRUE, cutoff = Inf)
+plot(variograma, ylab = "Semivariância", xlab = "Distância (m)", main = "Nuvem semivariográfica") +
+  latticeExtra::layer(lattice::panel.abline(h = var(pontos400$ca_kcl_aas), col = 'red'))
+```
+
+Semivariograma empírico suavizado
+
+Parâmetros do semivariograma:
+
+* Variância total (patamar)
+* Variância residual (pepita)
+* Alcance 
+
+```{r}
+limites <- seq(0, 1500, length.out = 15)
+variograma <- gstat::variogram(ca_kcl_aas ~ 1, pontos400, boundaries = limites)
+plot(variograma, ylim = c(0, 175), ylab = "Semivariância", xlab = "Distância (m)", 
+     main = "Semivariograma empírico") +
+  latticeExtra::layer(lattice::panel.text(variograma$dist, variograma$gamma, variograma$np, pos = 3))
+```
+
+Vamos conhecer quatro funções autorizadas clássicas que podem ser usadas para modelar o semivariograma empírico: 
+
+* Puro ruído (sem estrutura)
+* Exponencial (com patamar e alcance)
+* Gaussiana (com patamar e alcance)
+
+```{r}
+limites <- seq(0, 1500, length.out = 15)
+variograma <- gstat::variogram(ca_kcl_aas ~ 1, pontos400, boundaries = limites)
+m_exp <- gstat::vgm(psill = 100, model = 'Exp', range = 500, nugget = 20)
+m_gau <- gstat::vgm(psill = 80, model = 'Gau', range = 400, nugget = 25)
+m_nug <- gstat::vgm(psill = 100, model = 'Nug', range = 0, nugget = 0)
+plot(variograma, ylim = c(0, 175), ylab = "Semivariância", xlab = "Distância (m)", 
+     main = "Três modelos do semivariograma") +
+  latticeExtra::layer(lattice::panel.lines(
+    gstat::variogramLine(m_exp, dist_vector = seq(0, 1500, length.out = 1500)), col = "darkgreen")) +
+  latticeExtra::layer(lattice::panel.lines(
+    gstat::variogramLine(m_gau, dist_vector = seq(0, 1500, length.out = 1500)), col = "orange")) +
+  latticeExtra::layer(lattice::panel.lines(
+    gstat::variogramLine(m_nug, dist_vector = seq(0, 1500, length.out = 1500)), col = "purple")) +
+  latticeExtra::layer(lattice::panel.text(
+    rep(10, 3), seq(130, 160, length.out = 3), c('Exponencial', 'Gaussiana','Puro ruído'),
+    col = c('darkgreen', 'orange', 'purple'), pos = 4))
+```
+
+Vejamos o que cada uma dessas funções representa no mundo real.
+
+```{r}
+v <- gstat::gstat(formula = z ~ 1, dummy = TRUE, beta = 0, model = m_gau, nmax = 10)
+simula <- predict(v, grid, nsim = 1)
+v <- gstat::gstat(formula = z ~ 1, dummy = TRUE, beta = 0, model = m_exp, nmax = 10)
+simula$Exp <- predict(v, grid, nsim = 1)$sim1
+v <- gstat::gstat(formula = z ~ 1, dummy = TRUE, beta = 0, model = m_nug, nmax = 10)
+simula$Nug <- predict(v, grid, nsim = 1)$sim1
+names(simula)[1] <- 'Gau'
+sp::gridded(simula) <- TRUE
+sp::spplot(simula, main = "Realizações de três modelos do semivariograma")
+```
+
+Vejamos outras funções existentes.
+
+```{r}
+gstat::show.vgms(main = "Modelos do semivariograma", xlab = "Distância", ylab = "Semivariância")
+```
+
+Ajuste do modelo ao variograma empírico
+
+```{r}
+m_exp <- gstat::fit.variogram(variograma, m_exp)
+plot(variograma, m_exp, col.line = 'red', main = "Modelo exponencial ajustado ao semivariorgama") +
+  latticeExtra::layer(lattice::panel.abline(v = m_exp$range, lty = 'dashed')) +
+  latticeExtra::layer(lattice::panel.abline(h = m_exp$psill, lty = 'dashed')) +
+  latticeExtra::layer(lattice::panel.text(
+    y = m_exp$psill + 4, x = c(10, 10), c('Pepita', 'Patamar'), pos = 4)) +
+  latticeExtra::layer(lattice::panel.text(
+    y = 50, x = m_exp$range[2], 'Alcance', pos = 4, srt = 270))
+```
+
+Predições espaciais
+
+```{r}
+mapa_exp <- gstat::krige(ca_kcl_aas ~ 1, pontos400, grid, m_exp)
+mapa_exp$var1.var <- sqrt(mapa_exp$var1.var)
+sp::gridded(mapa_exp) <- TRUE
+sp::spplot(mapa_exp, 1, col.regions = col_soil_var, main = expression("Predição (cmol"[c]*" kg"^-1*")")) + 
+  latticeExtra::as.layer(lattice::xyplot(
+    coord_y ~ coord_x, data = pontos400@coords %>% as.data.frame(), pch = 21, col = 'red', cex = 0.5))
+```
+
+
+```{r}
+sp::spplot(mapa_exp, 2, col.regions = col_soil_var, main = expression("Incerteza (cmol"[c]*" kg"^-1*")"))
+```
+
+
+```{r, eval=FALSE}
+limites <- seq(0, 1500, length.out = 15)
+variograma <- gstat::variogram(ca_kcl_aas ~ 1, pontos400, boundaries = limites)
+lattice::xyplot(
+  rep(variograma$gamma, each = 2) ~ rep(limites, each = 2)[-c(1, 30)], type = 'l',
+  ylab = "Semivariância", xlab = "Distância (m)", ylim = c(0, 175), xlim = c(0, 1500)) +
+  latticeExtra::layer(lattice::panel.text(limites + diff(limites[1:2]) / 2, variograma$gamma, variograma$np, pos = 3)) +
+  latticeExtra::layer(lattice::panel.abline(h = var(pontos400$ca_kcl_aas), col = 'red', lty = 'dashed')) +
+  latticeExtra::layer(lattice::panel.segments(y0 = rep(0, 15), y1 = variograma$gamma, x0 = limites, x1 = limites)) +
+  plot(variograma) %>% latticeExtra::as.layer()
+```

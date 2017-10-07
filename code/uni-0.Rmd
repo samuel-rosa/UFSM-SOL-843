@@ -51,8 +51,6 @@ Você deve ter notado que o RStudio é composto por quatro grandes painéis reta
 
 # Gerenciamento de Código Fonte
 
-## git & GitHub
-
 O controle de versão é uma prática de fundamental importância para o gerenciamento ao longo do tempo de arquivos em geral, dentre eles arquivos contendo código fonte. Um sistema de controle de versão registra todas as mudança feitas no código fonte. Assim, quando cometemos algum erro ou desenvolvemos o código fonte em uma direção que mais tarde se mostra equivocada, podemos olhar para as versões anteriores do código fonte até encontrarmos o ponto em que erramos ou o momento no qual tomamos aquela direção equivocada. Basta então recuperar aquela versão do código fonte e continuar o seu desenvolvimento dali em diante.
 
 A estratégia de controle de versão mais comumente usada consiste em manter uma estrutura de arquivos mais ou menos com a seguinte:
@@ -68,6 +66,8 @@ A estratégia de controle de versão mais comumente usada consiste em manter uma
     |  |- script-final-final.R
 
 Segundo a estratégia acima, cada arquivo é nomeado de acordo com o estágio de desenvolvimento e fazendo uma referência generalista ao tipo de alteração feita. Isso pode ser eficiente quando fazemos poucas alterações ou então alterações pouco significativas. Contudo, à medida que aumenta a complexidade de nosso projeto, maior será o número de edições no código fonte e, também, maior será a complexidade delas. Felizmente existem alternativas bastante mais eficientes do que aquela mostrada acima. Na verdade, um bom sistema de controle de versão dará conta do registro e organização das diferentes versões do código fonte de maneira completamente automática.
+
+## git & GitHub
 
 Um dos sistemas mais populares de gerenciamento e controle de versão de código fonte é o [git][git]. Comparado aos outros sistemas de controle de versão, uma das grandes vantagens do git é o fato de ser de fácil instalação e poder ser utilizado localmente, sem necessidade de conexão permanente a um servidor remoto. Isso é possível porque o git  realiza todas as operações de gerenciamento do código fonte localmente. Basta submeter (em inglês, *commit*) ao git toda e qualquer edição importante, associando à ela uma mensagem descritiva. Além da importância para o uso pessoal, essa funcionalidade também é muito importante quando temos acesso limitado ou intermitente ao [repositório remoto][github] onde publicamos e compartilhamos o código fonte (por exemplo, por limitada conexão à Internet).
 

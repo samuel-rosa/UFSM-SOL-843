@@ -2,7 +2,7 @@
 title: "Unidade I -- Modelos de Variação Espacial"
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
-output: html_document
+output: bookdown::html_document2
 ---
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}

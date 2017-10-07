@@ -2,7 +2,7 @@
 title: "Unidade 0 -- Infraestrutura Básica"
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
-output: html_document
+output: bookdown::html_document2
 ---
 
 # Ambiente de Análise de Dados

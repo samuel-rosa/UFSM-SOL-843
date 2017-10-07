@@ -53,11 +53,16 @@ if (download) {
     download.file(url = url[i], destfile = destfile[i])
   }
 }
+```
+
+
+```{r}
 pedologia25 <- 
   glue('{data_folder}pedologia25.shp') %>% 
   raster::shapefile(stringsAsFactors = TRUE) %>% 
   sp::spTransform(wgs84utm22s)
 ```
+
 
 
 ```{r}

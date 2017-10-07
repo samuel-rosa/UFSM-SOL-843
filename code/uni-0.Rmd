@@ -1,11 +1,11 @@
 ---
 title: "Unidade 0 -- Infraestrutura Básica"
-lang: pt
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
 output: 
   bookdown::html_document2:
     css: styles.css
+lang: pt
 ---
 
 <div id="summary">

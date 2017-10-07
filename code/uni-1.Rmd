@@ -22,8 +22,9 @@ Natureza da variação espacial
 
 ```{r, message=FALSE, warning=FALSE}
 # Pacotes
-library(magrittr) # %>% 
+library(magrittr)
 library(dplyr)
+library(glue)
 library(lattice)
 
 # Sistemas de referência de coordenadas (Fonte: http://spatialreference.org/ref/epsg/)
@@ -35,13 +36,31 @@ col_soil_var <- topo.colors(100)
 ```
 
 
-<!-- $$Solo = f(cl, o, r, p, t, \ldots)$$ -->
- Carregar o mapa pedológico e gerar figura. No MS Windows, usar o argumento `encoding = 'UTF-8'` na função `raster::shapefile` para reconhecer carácteres especiais.
- 
+$$Solo = f(cl, o, r, p, t, \ldots)$$
+
+Carregar o mapa pedológico e gerar figura. No MS Windows, usar o argumento `encoding = 'UTF-8'` na função `raster::shapefile` para reconhecer carácteres especiais.
+
 ```{r}
+data_folder <- '../data/'
+ext <- c('dbf', 'prj', 'shp', 'shx')
+files <- glue('pedologia25.{ext}')
+download <- !all(files %in% list.files(data_folder)) 
+if (download) {
+  url <- 'https://github.com/samuel-rosa/UFSM-SOL-843/tree/master/data/'
+  url <- glue('{url}{files}')
+  destfile <- glue('{data_folder}{files}')
+  for (i in 1:length(files)) {
+    download.file(url = url[i], destfile = destfile[i])
+  }
+}
 pedologia25 <- 
-  raster::shapefile('../data/pedologia25.shp', stringsAsFactors = TRUE, encoding = 'UTF-8') %>% 
+  glue('{data_folder}pedologia25.shp') %>% 
+  raster::shapefile(stringsAsFactors = TRUE) %>% 
   sp::spTransform(wgs84utm22s)
+```
+
+
+```{r}
 sp::spplot(
   pedologia25, scales = list(draw = TRUE), 
   col.regions = terrain.colors(nlevels(pedologia25$um)),

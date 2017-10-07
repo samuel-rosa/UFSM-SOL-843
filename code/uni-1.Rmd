@@ -1,5 +1,5 @@
 ---
-title: "Variação espacial"
+title: "Unidade I -- Modelos de Variação Espacial"
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
 output: html_document
@@ -20,7 +20,9 @@ wgs84 <- sp::CRS('+proj=longlat +ellps=WGS84')
 col_soil_var <- topo.colors(100)
 ```
 
-# Natureza da variação espacial
+# Introdução à modelagem espacial
+
+Natureza da variação espacial
 
 # Modelo discreto de variação espacial
 

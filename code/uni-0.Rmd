@@ -1,0 +1,6 @@
+---
+title: "Unidade O -- Ferramentas para Modelagem Geoestatística do Ambiente"
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
+output: html_document
+---

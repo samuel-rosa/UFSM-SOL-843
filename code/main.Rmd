@@ -1,8 +1,8 @@
 ---
 title: "Variação espacial"
-output:
-  html_document: default
-  html_notebook: default
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
+output: html_document
 ---
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -77,7 +77,8 @@ perfis25@data
 <!-- $$Y(\boldsymbol{s}) = m(\boldsymbol{s}) + \epsilon(\boldsymbol{s})$$ -->
 
 ```{r, message=FALSE, warning=FALSE}
-pontos400_o <- febr::observations('ctb0003', which.cols = 'all')pontos400_l <- febr::layers('ctb0003', which.cols = 'all', missing.data = 'keep')
+pontos400_o <- febr::observations('ctb0003', which.cols = 'all')
+pontos400_l <- febr::layers('ctb0003', which.cols = 'all', missing.data = 'keep')
 id <- c('dataset_id', 'observacao_id')
 pontos400 <- 
   merge(pontos400_o, pontos400_l, by.x = id, by.y = id) %>% 

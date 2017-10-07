@@ -20,16 +20,15 @@ Natureza da variação espacial
 
 ## Modelo discreto: visão determinística
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-# Carregar alguns pacotes
+```{r, message=FALSE, warning=FALSE}
+# Pacotes
 library(magrittr) # %>% 
 library(dplyr)
 library(lattice)
 
-# Definir variáveis
-# http://spatialreference.org/ref/epsg/
+# Sistemas de referência de coordenadas (Fonte: http://spatialreference.org/ref/epsg/)
 wgs84utm22s <- sp::CRS('+proj=utm +zone=22 +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
-wgs84 <- sp::CRS('+proj=longlat +ellps=WGS84')
+sirgas2000 <- sp::CRS('+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs')
 
 # Rampas de cores
 col_soil_var <- topo.colors(100)

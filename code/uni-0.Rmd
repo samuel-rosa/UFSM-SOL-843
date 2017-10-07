@@ -100,7 +100,7 @@ git config --global user.email 'seu@email.aqui'
 A maneira mais fácil de utilizar o git para o gerenciamento e controle de versão do código fonte -- e demais dados e documentos -- que produzimos em nossos projetos é via RStudio. Para isso, ao criar um novo projeto no RStudio usando um novo diretório (`Files > New Project > New Directory > New Project`), devemos habilitar a opção `Create a git repository`:
 
 ```{r rstudio-novo-projeto-git, echo=FALSE, fig.cap="Novo projeto do RStudio usando git para controle de versão.", out.width='50%', fig.align='center'}
-knitr::include_graphics("images/rstudio-novo-projeto-git.png")
+knitr::include_graphics("../images/rstudio-novo-projeto-git.png")
 ```
 
 O diretório do novo projeto do RStudio deverá conter uma estrutura com a mostrada abaixo (pode ser preciso habilitar a visualização de arquivos ocultos em seu gerenciador de arquivos):
@@ -133,3 +133,15 @@ O resultado impresso no terminal deve ser aproximadamente o seguinte:
             meu-novo-projeto.Rproj
 
     nothing added to commit but untracked files present (use "git add" to track)
+
+A primeira informação é de que estamos operando no ramo `master` do git. Ademais, temos a informação de que existem dois arquivos não monitorados pelo git: `.gitignore` e `meu-novo-projeto.Rproj`. Para iniciar o monitoramento desses arquivos, acessamos a aba `Git` no painel superior direito to RStudio e habilitamos as caixas sob o item `Staged`, o que fará o símbolo sob o item `Status` passar de um sinal de interrogoção amarelo para um `A` verde (adicionar, do inglês *add*).
+
+```{r rstudio-git-add, echo=FALSE, fig.cap="Adicionando arquivos ao monitoramento do git.", out.width='50%', fig.align='center'}
+knitr::include_graphics("../images/rstudio-git-add.png")
+```
+
+Em seguida acessamos o item `Commit` e, na janela que abrir, inserirmos uma mensagem (`Commit message`) descrevendo o tipo de edição feita no projeto. Nesse caso, a edição consistiu na criação de um novo projeto do RStudio usando git para controle de versão (Figura \@ref(fig:rstudio-git-commit)). Feito isso basta pressionar o botão `Commit`.
+
+```{r rstudio-git-commit, echo=FALSE, fig.cap="Submissão de edição ao git.", out.width='50%', fig.align='center'}
+knitr::include_graphics("../images/rstudio-git-commit.png")
+```

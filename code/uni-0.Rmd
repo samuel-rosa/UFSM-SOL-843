@@ -1,5 +1,5 @@
 ---
-title: "Unidade O -- Infraestrutura Básica"
+title: "Unidade 0 -- Infraestrutura Básica"
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
 output: html_document
@@ -19,6 +19,24 @@ O R é uma linguagem de programação e um ambiente de análises estatísticas e
 [r-core-team]: https://www.r-project.org/contributors.html
 
 O R fornece uma ampla variedade de técnicas estatísticas, incluindo análises univariadas, bivariadas e multivariadas, desde as mais simples até as mais complexas, como análises descritivas, análise de variância e testes de médias, análise de agrupamento e de componentes principais, análise de séries temporais, modelagem geoestatísticas e muito, muito mais. O R ainda fornece uma série de ferramentas para produção de diversos tipos gráficos com qualidade para publicação. Todas essas técnicas e ferramentas, além de amplamente documentadas, são customizáveis e extensíveis. Assim, além de dispor das técnicas já incluídas no ambiente R, o usuário pode utilizar-se da linguagem R para criar suas próprias técnicas e, em seguida, torná-las disponíveis para uso pela comunidade científica na forma de pacotes.
+
+### Instalação
+
+Para instalao o R, será preciso acessar a página do projeto na Internet (http://www.r-project.org/). O procedimento de instalação do R depende do sistema operacional ([OS][os], do inglês *operating system*) de seu computador:
+
+[os]: https://en.wikipedia.org/wiki/Operating_system
+
+* Linux: https://cloud.r-project.org/bin/linux/
+* (Mac) OS X: https://cloud.r-project.org/bin/macosx/
+* Windows: https://cloud.r-project.org/bin/windows/base/
+
+Note que uma grande quantidade de informação, muito além do que se busca incluir nesse material, pode ser encontrada na página do projeto. Lá estão disponíveis diversos manuais de uso (`Documentation > Munuals`), bem como livros (`Documentation > Books`) e artigos publicados na revista do projeto (`Documentation > The R Journal`). Há ainda uma página com respostas às perguntas mais frequentes (`Documentation > FAQs`) e uma página inteira explicando como é possível conseguir ajuda antes de recorrer diretamente a terceiros (`Help With R > Getting Help`).
+
+Instalado o R, agora é a hora de instalar o RStudio. A última versão do instalador do RStudio para o seu OS pode ser descarregada do seguinte endereço na Internet: https://www.rstudio.com/products/rstudio/download/. Depois de instalado, inicie o RStudio. Ele deve se parecer mais ou menos como mostra a Figura \@ref(fig:rstudio-snapshot).
+
+```{r rstudio-snapshot, echo=FALSE, fig.cap="RStudio -- ambiente de desenvolvimento integrado para R (em sua versão para Linux).", out.width='50%', fig.align='center'}
+knitr::include_graphics('../images/rstudio-snapshot.png')
+```
 
 # Gerenciamento de Código Fonte
 

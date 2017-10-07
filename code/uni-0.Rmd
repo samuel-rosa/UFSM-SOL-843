@@ -50,7 +50,7 @@ Note que uma grande quantidade de informação, muito além do que se busca incl
 
 Instalado o R, agora é a hora de instalar o RStudio. A última versão do instalador do RStudio para o seu OS pode ser descarregada do seguinte endereço na Internet: https://www.rstudio.com/products/rstudio/download/. Depois de instalado, inicie o RStudio. Ele deve se parecer mais ou menos como mostra a Figura \@ref(fig:rstudio-snapshot).
 
-```{r rstudio-snapshot, echo=FALSE, fig.cap="RStudio -- ambiente de desenvolvimento integrado para R (em sua versão para Linux).", out.width='50%', fig.align='center'}
+```{r rstudio-snapshot, echo=FALSE, fig.cap="RStudio -- ambiente de desenvolvimento integrado para R (em sua versão para Linux).", out.width='100%', fig.align='center'}
 knitr::include_graphics('../images/rstudio-snapshot.png')
 ```
 

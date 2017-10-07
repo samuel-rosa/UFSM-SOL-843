@@ -1,6 +1,15 @@
 ---
-title: "Unidade O -- Ferramentas para Modelagem Geoestatística do Ambiente"
+title: "Unidade O -- Infraestrutura Básica"
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
 output: html_document
 ---
+
+# Ambiente de Análise de Dados
+
+## R & RStudio
+
+# Gerenciamento de Código Fonte
+
+## git & GitHub
+

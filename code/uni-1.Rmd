@@ -38,7 +38,8 @@ col_soil_var <- topo.colors(100)
 
 $$Solo = f(cl, o, r, p, t, \ldots)$$
 
-Carregar o mapa pedológico e gerar figura. No MS Windows, usar o argumento `encoding = 'UTF-8'` na função `raster::shapefile` para reconhecer carácteres especiais.
+
+Vejamos um exemplo de mapa pedológico produzido usando o modelo discreto de variação espacial em sua visão determinística. Para isso será preciso descarregar os arquivos do mapa pedológico para um diretório local. O nome desse diretório é definido abaixo pelo objeto `data_folder`. Altere o caminho para esse diretório conforme necessário. Caso você já tenha descarregado os arquivos do mapa pedológico, então `data_folder` deve ser o caminho para o diretório onde esses arquivos se encontram.
 
 ```{r}
 data_folder <- '../data/'
@@ -55,21 +56,21 @@ if (download) {
 }
 ```
 
+Agora você já pode carregar o mapa pedológico para o seu ambiente de trabalho. Para isso, use a função `raster::shapefile`. Note que se o sistema operacional do seu computador for o MS Windows, pode ser necessário incluir o o argumento `encoding = 'UTF-8'` na função `raster::shapefile` para garantir que os carácteres especiais usados nos nomes das unidades de mapeamento seja reconhecidos. Verifique se a estrutura de `pedologia25` está conforme o esperado para um objeto do tipo `SpatialPolygonsDataFrame`. Note que a função `sp::spTransform` é usada para projetar as coordenadas original no plano cartesiano (UTM).
 
 ```{r}
 pedologia25 <- 
   glue('{data_folder}pedologia25.shp') %>% 
   raster::shapefile(stringsAsFactors = TRUE) %>% 
   sp::spTransform(wgs84utm22s)
+str(pedologia25, 2)
 ```
 
+O próximo passo consiste em produzir uma figura de `pedologia25`. Para isso usamos a função `sp::spplot`, criada especificamente para a produção de figuras de objetos espaciais. Antes disso, vamos criar uma rampa de cores específica para `pedologia25`, a qual será constituída de tantas cores quantas foram as unidades de mapeamento. Vejamos o resultado na Figura \@ref(fig:pedologia25).
 
-
-```{r}
-sp::spplot(
-  pedologia25, scales = list(draw = TRUE), 
-  col.regions = terrain.colors(nlevels(pedologia25$um)),
-  main = "Mapa pedológico")
+```{r pedologia25, fig.cap='Mapa pedológico preparado na escala cartográfica de 1:25000 e suas nove unidades de mapeamento.'}
+col_soil_um <- terrain.colors(nlevels(pedologia25$um))
+sp::spplot(pedologia25, scales = list(draw = TRUE), col.regions = col_soil_um)
 ```
 
 Descarregar dados do conjunto de dados `ctbo0030`:

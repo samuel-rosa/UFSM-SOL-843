@@ -9,6 +9,17 @@ output: html_document
 
 ## R & RStudio
 
+O R é uma linguagem de programação e um ambiente de análises estatísticas e gráficas gratuito. Sua origem data de 1995, quando os pesquisadores [Robert Gentleman][robert-gentleman] e [Ross Ihaka][ross-ihaka] iniciaram o projeto de seu desenvolvimento no Departamento de Estatística da Universidade de Auckland na Nova Zelândia. Baseado na linguagem de programação e ambiente estatístico [S][s], desenvolvido por [John Chambers][john-chambers] e colegas no [Bell Laboratories][bell-laboratories]. Hoje o R é um software livre mantido e desenvolvido pelo [R Core Team][r-core-team], disponível gratuitamente para qualquer interessado em utilizá-lo, modificá-lo e redistribuí-lo.
+
+[bell-laboratories]: https://en.wikipedia.org/wiki/Bell_Labs
+[ross-ihaka]: https://en.wikipedia.org/wiki/Ross_Ihaka
+[robert-gentleman]: https://en.wikipedia.org/wiki/Robert_Gentleman_(statistician)
+[s]: https://en.wikipedia.org/wiki/S_(programming_language)
+[john-chambers]: https://en.wikipedia.org/wiki/John_Chambers_(statistician)
+[r-core-team]: https://www.r-project.org/contributors.html
+
+O R fornece uma ampla variedade de técnicas estatísticas, incluindo análises univariadas, bivariadas e multivariadas, desde as mais simples até as mais complexas, como análises descritivas, análise de variância e testes de médias, análise de agrupamento e de componentes principais, análise de séries temporais, modelagem geoestatísticas e muito, muito mais. O R ainda fornece uma série de ferramentas para produção de diversos tipos gráficos com qualidade para publicação. Todas essas técnicas e ferramentas, além de amplamente documentadas, são customizáveis e extensíveis. Assim, além de dispor das técnicas já incluídas no ambiente R, o usuário pode utilizar-se da linguagem R para criar suas próprias técnicas e, em seguida, torná-las disponíveis para uso pela comunidade científica na forma de pacotes.
+
 # Gerenciamento de Código Fonte
 
 ## git & GitHub

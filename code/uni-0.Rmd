@@ -31,9 +31,7 @@ O R é uma linguagem de programação e um ambiente de análises estatísticas e
 
 O R fornece uma ampla variedade de técnicas estatísticas, incluindo análises univariadas, bivariadas e multivariadas, desde as mais simples até as mais complexas, como análises descritivas, análise de variância e testes de médias, análise de agrupamento e de componentes principais, análise de séries temporais, modelagem geoestatísticas e muito, muito mais. O R ainda fornece uma série de ferramentas para produção de diversos tipos gráficos com qualidade para publicação. Todas essas técnicas e ferramentas, além de amplamente documentadas, são customizáveis e extensíveis. Assim, além de dispor das técnicas já incluídas no ambiente R, o usuário pode utilizar-se da linguagem R para criar suas próprias técnicas e, em seguida, torná-las disponíveis para uso pela comunidade científica na forma de pacotes.
 
-### Instalação
-
-Para instalao o R, será preciso acessar a página do projeto na Internet (http://www.r-project.org/). O procedimento de instalação do R depende do sistema operacional ([OS][os], do inglês *operating system*) de seu computador:
+Para instalar R, será preciso acessar a página do projeto na Internet (http://www.r-project.org/). O procedimento de instalação do R depende do sistema operacional ([OS][os], do inglês *operating system*) de seu computador:
 
 [os]: https://en.wikipedia.org/wiki/Operating_system
 
@@ -48,6 +46,8 @@ Instalado o R, agora é a hora de instalar o RStudio. A última versão do insta
 ```{r rstudio-snapshot, echo=FALSE, fig.cap="RStudio -- ambiente de desenvolvimento integrado para R (em sua versão para Linux).", out.width='50%', fig.align='center'}
 knitr::include_graphics('../images/rstudio-snapshot.png')
 ```
+
+Você deve ter notado que o RStudio é composto por quatro grandes painéis retangulares, cada um contendo conteúdo específico. Grosso modo, o painel superior direito mostra informações diversas sobre a atual sessão de trabalho, sendo geralmente pouco utilizado. Já o painel inferior direito serve à visualização de gráficos e páginas de ajuda do R, o que o faz ser bastante utilizado. O painel superior esquerdo é aquele utilizado para a programação em R, ou seja, aquele onde as linhas de comando utilizadas para a análise dos dados são editadas. Esse painel é aquele onde ocupamos a maior parte do tempo. Por fim, o painel inferior esquerdo corresponde à interface de linha de comando (CLI), o console do R. É ali que as linhas de comando editadas no painel superior esquerdo deve ser emitidas para que a "mágica" aconteça. Para isso você pode, no editor, posicionar o cursor sobre a linha de código fonte que deseja que seja emitida e pressionar, simultaneamente, as teclas `Ctrl` e `Enter`. Alternativamente, para emitir um bloco de linhas de comando, você deve selecioná-lo por completo e então pressionar as teclas `Ctrl` e `Enter`.
 
 # Gerenciamento de Código Fonte
 

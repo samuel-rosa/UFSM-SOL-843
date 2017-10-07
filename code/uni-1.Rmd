@@ -83,7 +83,7 @@ Criar objeto espacial com os perfis e gerar figura.
 
 ```{r}
 sp::coordinates(perfis25) <- c('coord_x', 'coord_y')
-sp::proj4string(perfis25) <- wgs84
+sp::proj4string(perfis25) <- sirgas2000
 perfis25 <- sp::spTransform(perfis25, wgs84utm22s)
 sp::spplot(
   pedologia25, scales = list(draw = TRUE),
@@ -116,7 +116,7 @@ rm(pontos400_l, pontos400_o)
 
 ```{r}
 sp::coordinates(pontos400) <- ~ coord_x + coord_y
-sp::proj4string(pontos400) <- wgs84
+sp::proj4string(pontos400) <- sirgas2000
 pontos400 <- sp::spTransform(pontos400, wgs84utm22s)
 sp::spplot(
   pedologia25, scales = list(draw = TRUE),  

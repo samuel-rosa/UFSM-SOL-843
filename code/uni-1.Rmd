@@ -12,6 +12,14 @@ lang: pt
 **Temas**: A variação espacial e os fatores que a determinam. Introdução à modelagem de dados espaciais. O modelo discreto de explicação da variação espacial. As visões determinística e estocástica do modelo discreto de variação espacial. O modelo contínuo de variação espacial. A visão determinística do modelo contínuo de variação espacial.
 </div>
 
+# Introdução à modelagem espacial
+
+Natureza da variação espacial
+
+# Modelo discreto de variação espacial
+
+## Modelo discreto: visão determinística
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Carregar alguns pacotes
 library(magrittr) # %>% 
@@ -27,13 +35,6 @@ wgs84 <- sp::CRS('+proj=longlat +ellps=WGS84')
 col_soil_var <- topo.colors(100)
 ```
 
-# Introdução à modelagem espacial
-
-Natureza da variação espacial
-
-# Modelo discreto de variação espacial
-
-## Modelo discreto: visão determinística
 
 <!-- $$Solo = f(cl, o, r, p, t, \ldots)$$ -->
  Carregar o mapa pedológico e gerar figura. No MS Windows, usar o argumento `encoding = 'UTF-8'` na função `raster::shapefile` para reconhecer carácteres especiais.

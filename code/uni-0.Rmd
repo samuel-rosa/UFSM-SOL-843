@@ -7,6 +7,17 @@ output: bookdown::html_document2
 
 # Ambiente de Análise de Dados
 
+A modelagem geoestatística do ambiente se dá, fundamentalmente, pelo uso de computadores. Isso significa que necessitamos, obrigatoriamente, de um ambiente de análise de dados -- um programa de computador -- especializado para tal tarefa. É por meio desse programa de computador que daremos instruções ao nosso computador para que ele desempenhe determinada tarefa como, por exemplo, computar estatísticas descritivas de um conjunto de dados ou produzir um gráfico relacionando uma variável dependente $y$ com uma variável independente $x$.
+
+São inúmeros os programas de computador disponíveis para o desenvolvimento de estudos de modelagem geoestatística do ambiente. Para aprender e potencialmente dominar o uso de qualquer desses programas de computador, será necessário que você aprenda a sua [linguagem][linguagem]. A linguagem de um programa de computador é um sistema de signos convencionados que serve para a comunicação com o computador. Nesse caso, a comunicação com o computador se dá via uso de uma interface de linha de comando ([CLI][cli], do inglês *command-line interface*), ou seja, via emissão de comandos sob a forma de sucessivas linhas de texto, as chamadas linhas de comando.
+
+[linguagem]: https://pt.wikipedia.org/wiki/Linguagem
+[cli]: https://pt.wikipedia.org/wiki/Linha_de_comandos
+
+Uma das grandes vantagens dos programas de computador que utilizam comandos de texto -- ao invés de botões e caixas de diálogo -- é o fato de permitirem ao usuário fazer adaptações metodológicas, desenvolver novos métodos e expandir sua caixa de ferramentas analíticas para além daquilo que já estiver implementado no programa de computador. Além disso, a documentação de todos os passos da modelagem fica mais fácil, haja vista que todos os comandos emitidos ficam registrados. Isso permite que erros possam ser facilmente identificados e corrigidos. Ou ainda, que um estudo possa ser inteiramente [reproduzido][reprodutibilidade], tanto pelo mesmo pesquisador como por qualquer outro pesquisador trabalhando independentemente em qualquer lugar do planeta. Dentre os ambientes de análise de dados que utilizaremos ao longo desse curso que usam uma interface de linha de comando, o principal deles é o R.
+
+[reprodutibilidade]: https://pt.wikipedia.org/wiki/Reprodutibilidade
+
 ## R & RStudio
 
 O R é uma linguagem de programação e um ambiente de análises estatísticas e gráficas gratuito. Sua origem data de 1995, quando os pesquisadores [Robert Gentleman][robert-gentleman] e [Ross Ihaka][ross-ihaka] iniciaram o projeto de seu desenvolvimento no Departamento de Estatística da Universidade de Auckland na Nova Zelândia. Baseado na linguagem de programação e ambiente estatístico [S][s], desenvolvido por [John Chambers][john-chambers] e colegas no [Bell Laboratories][bell-laboratories]. Hoje o R é um software livre mantido e desenvolvido pelo [R Core Team][r-core-team], disponível gratuitamente para qualquer interessado em utilizá-lo, modificá-lo e redistribuí-lo.

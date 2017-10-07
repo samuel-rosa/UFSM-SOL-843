@@ -2,8 +2,15 @@
 title: "Unidade I -- Modelos de Variação Espacial"
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
-output: bookdown::html_document2
+output: 
+  bookdown::html_document2:
+    css: styles.css
+lang: pt
 ---
+
+<div id="summary">
+**Temas**: A variação espacial e os fatores que a determinam. Introdução à modelagem de dados espaciais. O modelo discreto de explicação da variação espacial. As visões determinística e estocástica do modelo discreto de variação espacial. O modelo contínuo de variação espacial. A visão determinística do modelo contínuo de variação espacial.
+</div>
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Carregar alguns pacotes

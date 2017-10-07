@@ -53,3 +53,83 @@ Você deve ter notado que o RStudio é composto por quatro grandes painéis reta
 
 ## git & GitHub
 
+O controle de versão é uma prática de fundamental importância para o gerenciamento ao longo do tempo de arquivos em geral, dentre eles arquivos contendo código fonte. Um sistema de controle de versão registra todas as mudança feitas no código fonte. Assim, quando cometemos algum erro ou desenvolvemos o código fonte em uma direção que mais tarde se mostra equivocada, podemos olhar para as versões anteriores do código fonte até encontrarmos o ponto em que erramos ou o momento no qual tomamos aquela direção equivocada. Basta então recuperar aquela versão do código fonte e continuar o seu desenvolvimento dali em diante.
+
+A estratégia de controle de versão mais comumente usada consiste em manter uma estrutura de arquivos mais ou menos com a seguinte:
+
+    meu-novo-projeto/
+    |- code/
+    |  |- script01.R
+    |  |- script01-modificado.R
+    |  |- script02.R
+    |  |- script02-revisado.R
+    |  |- script02-revisado-novo.R
+    |  |- script-final.R
+    |  |- script-final-final.R
+
+Segundo a estratégia acima, cada arquivo é nomeado de acordo com o estágio de desenvolvimento e fazendo uma referência generalista ao tipo de alteração feita. Isso pode ser eficiente quando fazemos poucas alterações ou então alterações pouco significativas. Contudo, à medida que aumenta a complexidade de nosso projeto, maior será o número de edições no código fonte e, também, maior será a complexidade delas. Felizmente existem alternativas bastante mais eficientes do que aquela mostrada acima. Na verdade, um bom sistema de controle de versão dará conta do registro e organização das diferentes versões do código fonte de maneira completamente automática.
+
+Um dos sistemas mais populares de gerenciamento e controle de versão de código fonte é o [git][git]. Comparado aos outros sistemas de controle de versão, uma das grandes vantagens do git é o fato de ser de fácil instalação e poder ser utilizado localmente, sem necessidade de conexão permanente a um servidor remoto. Isso é possível porque o git  realiza todas as operações de gerenciamento do código fonte localmente. Basta submeter (em inglês, *commit*) ao git toda e qualquer edição importante, associando à ela uma mensagem descritiva. Além da importância para o uso pessoal, essa funcionalidade também é muito importante quando temos acesso limitado ou intermitente ao [repositório remoto][github] onde publicamos e compartilhamos o código fonte (por exemplo, por limitada conexão à Internet).
+
+[git]: https://git-scm.com/
+[github]: https://github.com/
+
+Outra importante funcionalidade do git -- comparado aos demais sistemas de controle de versão -- é a capacidade de gerenciar diferentes "ramos" (em inglês, *branches*) de desenvolvimento do código fonte. Assim, há sempre um ramo principal, com a versão mais estável do código fonte, e ramos secundários com os quais podemos fazer testes diversos, tudo isso sem tocar na versão estável do código fonte. Caso os resultados de um ramo de desenvolvimento do código fonte se mostrarem interessantes e julgarmos que vale a pena adicioná-los à versão estável do código fonte, basta fazer a fusão (em inglês, *merge*) dos dois ramos -- ou simplesmente deletar o ramo de teste caso seus resultados se mostrem inúteis. Na prática, isso elimina a necessidade de criação de diferentes arquivos, tanto quando trabalhamos sozinhos, como quando trabalhamos em grupo.
+
+Passemos então à instalação e uso do git!
+
+Para verificar se você já tem o git instalado em seu computador, acesse o Terminal -- painel esquerdo inferior do RStudio -- e emita as linhas de comando abaixo conforme o seu sistema operacional:
+
+```{bash, eval=FALSE}
+# Verificação da instalação do git
+which git # Linux & Mac
+where git # Windows
+git --version
+```
+
+Se o git estiver instalado, o primeiro comando (`which git`, em Linux e Mac, ou `where git`, em Windows) deverá retornar o caminho para o diretório onde os arquivos do git estão localizados -- por exemplo, `/usr/bin/git` --, enquanto o segundo comando mostra a versão do git que está instalada -- por exemplo, `git version 2.7.4`. Caso você não tenha o git instalado em seu computador, vá até o endereço https://git-scm.com/downloads e descarregue o instalador e estude as diretrizes de instalação para o seu sistema operacional.
+
+Depois de instalado o git, precisamos fazer a sua configuração. Trata-se de informar seu nome e endereço de e-mail para o git. Isso é necessário porque o git registra esses dados à cada edição submetida ao controle de versão. Apesar da pequena utilidade quando trabalhamos sozinhos, essa prática é da maior importância quando duas ou mais pessoas colaboram na edição do código fonte, permitindo identificar quem fez cada alteração. Para configurar o seu nome e endereço de e-mail no git, acesse o Terminal -- painel esquerdo inferior do RStudio -- e emita as duas linhas de comando abaixo substituindo com seus dados os campos pertinentes:
+
+```{bash, eval=FALSE}
+# Configuração do git
+git config --global user.name 'Seu Nome aqui'
+git config --global user.email 'seu@email.aqui'
+```
+
+A maneira mais fácil de utilizar o git para o gerenciamento e controle de versão do código fonte -- e demais dados e documentos -- que produzimos em nossos projetos é via RStudio. Para isso, ao criar um novo projeto no RStudio usando um novo diretório (`Files > New Project > New Directory > New Project`), devemos habilitar a opção `Create a git repository`:
+
+```{r rstudio-novo-projeto-git, echo=FALSE, fig.cap="Novo projeto do RStudio usando git para controle de versão.", out.width='50%', fig.align='center'}
+knitr::include_graphics("images/rstudio-novo-projeto-git.png")
+```
+
+O diretório do novo projeto do RStudio deverá conter uma estrutura com a mostrada abaixo (pode ser preciso habilitar a visualização de arquivos ocultos em seu gerenciador de arquivos):
+
+    meu-novo-projeto/
+    |- .git/
+    |- .Rproj.user/
+    |- meu-novo-projeto.Rproj
+    |- .gitignore
+
+Tando o subdiretório `.Rproj.user` como o arquivo `meu-novo-projeto.Rproj` já foram descritos anteriormente. O que temos de novidade aqui são o subdiretório `.git` e o arquivo `.gitignore`. O subdiretório `.git` consiste no repositório local onde as edições submetidas ao git são registradas. Já o arquivo `.gitignore` serve para identificar os arquivos e subdiretórios que devem ser, como o próprio nome sugere, ignorados pelo git. É o caso, por exemplo, de um subdiretório temporário criado para armazenar produtos do projeto que podem mudar a cada instante e serem descartados a qualquer momento.
+
+Agora, no Terminal, emita o comando `git status` para acessar as informações sobre o estado atual do git:
+
+```{bash, eval=FALSE}
+# Verificação do estado atual do git
+git status
+```
+
+O resultado impresso no terminal deve ser aproximadamente o seguinte:
+
+    On branch master
+    
+    Initial commit
+    
+    Untracked files:
+      (use "git add <file>..." to include in what will be committed)
+    
+            .gitignore
+            meu-novo-projeto.Rproj
+
+    nothing added to commit but untracked files present (use "git add" to track)

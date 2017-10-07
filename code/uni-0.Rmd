@@ -1,9 +1,16 @@
 ---
 title: "Unidade 0 -- Infraestrutura Básica"
+lang: pt
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
-output: bookdown::html_document2
+output: 
+  bookdown::html_document2:
+    css: styles.css
 ---
+
+<div id="summary">
+**Temas**: Nivelamento infraestrutural necessário ao desenvolvimento das atividades do curso. Introdução ao ambiente [R](https://www.r-project.org/) de análise de dados e ao ambiente [RStudio](https://www.rstudio.com/) de desenvolvimento integrado. Estudo do sistema [git](https://git-scm.com/) de gerenciamento de código fonte e controle de versão distribuído e da plataforma [GitHub](https://github.com/) de hospedagem de código fonte. Apresentação de aspectos da programação letrada e uso da linguagem de marcação [Markdown do R](http://rmarkdown.rstudio.com/) para produção de [cadernos de anotações](http://rmarkdown.rstudio.com/r_notebooks.html).
+</div>
 
 # Ambiente de Análise de Dados
 

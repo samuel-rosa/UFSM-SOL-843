@@ -71,10 +71,9 @@ Malhas amostrais espaciais podem ser preparadas usando a função `sp::spsample`
 pts_regular <- sp::spsample(pedologia25, n = 50, type = "regular", offset = c(0.5, 0.5))
 col_soil_um <- terrain.colors(nlevels(pedologia25$um))
 sp::spplot(
-  pedologia25, col.regions = col_soil_um, alpha.regions = 0.3,
-  main = "Malha amostral regular", colorkey = FALSE, sub = glue('n = {length(pts_regular)}')) +
-  lattice::xyplot(x2 ~ x1, data = pts_regular@coords %>% as.data.frame(), col = 'red', pch = 17) %>% 
-  latticeExtra::as.layer()
+  pedologia25, col.regions = col_soil_um, alpha.regions = 0.3, colorkey = FALSE) +
+  as.layer(xyplot(x2 ~ x1, data = as.data.frame(pts_regular@coords), col = 'red', pch = 17))
+  
 ```
 
 ## Observações preferenciais
@@ -113,12 +112,10 @@ perfis25 <- sp::spTransform(perfis25, wgs84utm22s)
 
 A Figura \@ref(fig:pts-preferenciais) mostra a localização de 10 dos 11 perfis modais (lembre que um dos perfis modais está localizado para além dos limites da área mapeada).
 
-```{r pts-preferenciais, message=FALSE, warning=FALSE}
+```{r pts-preferenciais, message=FALSE, warning=FALSE, fig.cap='Localização de 10 dos perfis modais usados para caracterização das unidades do mapa pedológico.'}
 sp::spplot(
-  pedologia25, col.regions = col_soil_um, alpha.regions = 0.3,
-  main = "Localização dos perfis modais", colorkey = FALSE, sub = glue('n = {length(perfis25) - 1}')) +
-  latticeExtra::as.layer(
-    lattice::xyplot(coord_y ~ coord_x, data = as.data.frame(perfis25@coords), col = 'red', pch = 17))
+  pedologia25, col.regions = col_soil_um, alpha.regions = 0.3, colorkey = FALSE) +
+  as.layer(xyplot(coord_y ~ coord_x, data = as.data.frame(perfis25@coords), col = 'red', pch = 17))
 ```
 
 # Dependência espacial

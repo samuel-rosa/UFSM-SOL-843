@@ -246,17 +246,21 @@ Vejamos o que cada uma dessas funções representa no mundo real.
 grid <- sp::spsample(pedologia25, 10000, type = 'regular')
 ```
 
-```{r simula, message=FALSE, warning=FALSE, fig.cap='Realização de três campos aleatórios definidos por funções gaussiana, exponencial e puro ruído.'}
+```{r, message=FALSE, warning=FALSE}
 v <- gstat::gstat(formula = z ~ 1, dummy = TRUE, beta = 0, model = m_gau, nmax = 10)
-simula <- predict(v, grid, nsim = 1)
+simula <- predict(v, grid, nsim = 1, debug.level = 0)
+names(simula) <- 'Gau'
 v <- gstat::gstat(formula = z ~ 1, dummy = TRUE, beta = 0, model = m_exp, nmax = 10)
-simula$Exp <- predict(v, grid, nsim = 1)$sim1
+simula$Exp <- predict(v, grid, nsim = 1, debug.level = 0)$sim1
 v <- gstat::gstat(formula = z ~ 1, dummy = TRUE, beta = 0, model = m_nug, nmax = 10)
-simula$Nug <- predict(v, grid, nsim = 1)$sim1
-names(simula)[1] <- 'Gau'
+simula$Nug <- predict(v, grid, nsim = 1, debug.level = 0)$sim1
+```
+
+```{r simula, message=FALSE, warning=FALSE, fig.cap='Realização de três campos aleatórios definidos por funções gaussiana, exponencial e puro ruído.'}
 sp::gridded(simula) <- TRUE
 sp::spplot(simula)
 ```
+
 
 Vejamos outras funções existentes.
 

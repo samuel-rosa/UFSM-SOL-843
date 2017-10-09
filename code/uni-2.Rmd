@@ -67,17 +67,28 @@ Observações raramente são obtidas sob condições idênticas e de maneira ind
 Malhas amostrais espaciais podem ser preparadas usando a função `sp::spsample`. Para preparar uma malha regular, que contenha pontos de observação separados por distâncias idênticas, tanto no eixo x, como no eixo y, usamos o argumento `type = 'regular'`. Se quisermos que a malha seja exatamente centrada em relação à região amostral, então usamos o argumento `offset = c(0.5, 0.5)`. A Figura \@ref(pts-dependentes) mostra uma malha regular gerada usando `sp::spsample`.
 
 ```{r pts-dependentes, fig.cap="Conjunto de pontos de observação posicionados em malha centrada, de espaçamento fixo e regular em ambas as direções horizontal e vertical."}
-pts <- sp::spsample(pedologia25, n = 50, type = "regular", offset = c(0.5, 0.5))
+pts_regular <- sp::spsample(pedologia25, n = 50, type = "regular", offset = c(0.5, 0.5))
 col_soil_um <- terrain.colors(nlevels(pedologia25$um))
 sp::spplot(
   pedologia25, col.regions = col_soil_um, alpha.regions = 0.3,
-  main = "Malha amostral regular", colorkey = FALSE, sub = glue('n = {length(pts)}')) +
-  lattice::xyplot(x2 ~ x1, data = pts@coords %>% as.data.frame(), col = 'red', pch = 17) %>% 
+  main = "Malha amostral regular", colorkey = FALSE, sub = glue('n = {length(pts_regular)}')) +
+  lattice::xyplot(x2 ~ x1, data = pts_regular@coords %>% as.data.frame(), col = 'red', pch = 17) %>% 
   latticeExtra::as.layer()
 ```
 
-
 ## Observações preferenciais
+
+```{r}
+pts_nonaligned <- sp::spsample(pedologia25, n = 10, type = "nonaligned", offset = c(0.5, 0.5))
+sp::spplot(
+  pedologia25, col.regions = col_soil_um, alpha.regions = 0.3,
+  main = "Malha amostral em zigue-zague", colorkey = FALSE, sub = glue('n = {length(pts_nonaligned)}')) +
+  latticeExtra::as.layer(
+    lattice::xyplot(x2 ~ x1, data = pts_nonaligned@coords %>% as.data.frame(), col = 'red', pch = 17)) +
+  latticeExtra::layer(
+    lattice::panel.arrows(x1 = pts_nonaligned@coords[-1, 1], y1 = pts_nonaligned@coords[-1, 2], x0 = pts_nonaligned@coords[-length(pts_nonaligned), 1], y0 = pts_nonaligned@coords[-length(pts_nonaligned), 2], length = 0.1))
+```
+
 
 # Dependência espacial
 

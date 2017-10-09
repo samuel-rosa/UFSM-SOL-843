@@ -225,7 +225,6 @@ Vamos conhecer três funções autorizadas clássicas que podem ser usadas para 
 * Gaussiana (com patamar e alcance)
 
 ```{r vario-funcoes, fig.asp=1, fig.cap='Três funções autorizadas para modelar o semivariograma empírico.'}
-# variograma <- gstat::variogram(residuo ~ 1, pontos400in, boundaries = limites)
 m_exp <- gstat::vgm(psill = 37000 - 8000, model = 'Exp', range = 300, nugget = 8000)
 m_gau <- gstat::vgm(psill = 37000 - 12000, model = 'Gau', range = 400, nugget = 12000)
 m_nug <- gstat::vgm(psill = 37000, model = 'Nug', range = 0, nugget = 0)

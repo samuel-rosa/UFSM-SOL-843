@@ -11,3 +11,30 @@ lang: pt
 <div id="summary">
 **Temas**: Observações dependentes e preferenciais. Resíduos espacialmente correlacionados. A visão estocástica do modelo contínuo de variação espacial. O processo gerador aleatório e espacialmente autocorrelacionado. Semivariância e modelos matemáticos do semivariograma empírico.
 </div>
+
+# Introdução aos dados espaciais
+
+O objetivo principal da Unidade II é apresentar as propriedades geoestatísticas dos dados espaciais de maneira a demonstrar como o modelo discreto de variação espacial, em ambas as visões determinística e estocástica, e o modelo contínuo de variação espacial, em sua visão determinística, comumente são inapropriados para a sua análise.
+
+# Amostragem espacial
+
+Observações raramente são obtidas sob condições idênticas e de maneira independente umas das outras. A amostragem casual costuma ser tomada -- erroneamente -- como amostragem aleatória. A amostragem conveniente é comum em levantamentos pedológicos, assim como a amostragem intencional. Mostrar exemplos gráficos desses métodos de amostragem. Demonstrar que, na modelagem geoestatística, a fonte de aleatoriedade advém do processo gerador dos dados, diferente da estatística clássica, onde a aleatoriedade é garantida pelo delineamento amostral. Com observações dependentes torna-se impossível obter estimativas não enviesadas dos parâmetros do modelo discreto de variação espacial -- isso dificulta, por exemplo, a comparação entre categorias.
+
+## Observações dependentes
+
+## Observações preferenciais
+
+# Dependência espacial
+
+## Resíduos correlacionados
+
+Pela 1ª Lei da Geografia sabe-se que objetos mais próximos entre si são mais similares do que objetos que estão distantes uns dos outros. Disso resulta que os resíduos dos modelos são, também, mais parecidos entre si quanto mais próximas entre si estiverem as observações. Exemplificar usando uma variável pedológica, primeiro, com uma covariável, depois num transecto. A existência de correlação espacial faz com que o modelo discreto seja subótimo, portanto menos realista. O mesmo se aplica ao modelo contínuo determinístico, baseado em interpoladores locais, pois os mesmos geralmente ignoram a extensão da correlação espacial e/ou usam critérios heurísticos.
+
+Como quantificar a dependência espacial?
+
+# Modelo contínuo de variação espacial
+
+## Modelo contínuo: visão estocástica
+
+O processo gerador aleatório e espacialmente autocorrelacionado.
+

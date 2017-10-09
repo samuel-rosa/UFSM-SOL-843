@@ -165,16 +165,42 @@ pontos400in@data <-
 
 Calculado os resíduos, vamos agora verificar sua distribuição espacial. Para isso usamos um gráfico de bolhas, o qual pode ser produzido usando a função `sp::bubble`. Um gráfico de bolha é uma forma de representação gráfica dos valores da variável de interesse em cada observação, onde o tamanho e cor do símbolo são proporcionais ao valor da variável de interesse. Na Figura \@ref(fig:bubble-residuo), as observações com resíduo negativo são indicadas em magenta, enquanto as observações em verde representam aquelas cujo resíduo é positivo. Quanto maior o diâmetro do círculo, maior é o resíduo em termos absolutos.
 
-```{r bubble-residuo}
-sp::bubble(pontos400in, 'residuo', do.sqrt = FALSE, main = "Resíduos")
+```{r bubble-residuo, fig.cap='Gráfico de bolha dos resíduos da variável de interesse, calculados em função da média de cada categoria do mapa pedológico.'}
+sp::bubble(pontos400in, 'residuo', do.sqrt = FALSE, main = "")
 ```
-
-
-Como quantificar a dependência espacial?
 
 # Modelo contínuo de variação espacial
 
+O processo gerador aleatório e espacialmente autocorrelacionado.
+Como quantificar a dependência espacial?
+
 ## Modelo contínuo: visão estocástica
 
-O processo gerador aleatório e espacialmente autocorrelacionado.
+A Figura \@ref(fig:vario-nuvem) mostra a nuvem semivariográfica dos resíduos da variável de interesse calculados acima.
+
+```{r vario-nuvem, fig.cap='Nuvem semivariográfica.', fig.asp=1}
+variograma <- gstat::variogram(residuo ~ 1, pontos400in, cloud = TRUE, cutoff = Inf)
+plot(variograma, ylab = "Semivariância", xlab = "Distância (m)") +
+  latticeExtra::layer(lattice::panel.abline(h = var(pontos400in$residuo), col = 'red', lty = 'dashed')) +
+  latticeExtra::layer(lattice::panel.text(y = var(pontos400in$residuo), x = 1500, label = "Variância amostral", pos = 3))
+```
+
+Semivariograma empírico suavizado (Figura \@ref(fig:vario-empirico)).
+
+```{r vario-empirico}
+limites <- seq(0, 2500, length.out = 15)
+variograma <- gstat::variogram(residuo ~ 1, pontos400in, boundaries = limites)
+plot(variograma, ylab = "Semivariância", xlab = "Distância (m)") +
+  latticeExtra::layer(lattice::panel.abline(h = var(pontos400in$residuo), col = 'red', lty = 'dashed')) +
+  latticeExtra::layer(lattice::panel.text(variograma$dist, variograma$gamma, variograma$np, pos = 1)) +
+  latticeExtra::layer(lattice::panel.text(y = var(pontos400in$residuo), x = 500, label = "Variância amostral", pos = 3))
+```
+
+Parâmetros do semivariograma:
+
+* Variância total (patamar)
+* Variância residual (pepita)
+* Alcance 
+
+
 

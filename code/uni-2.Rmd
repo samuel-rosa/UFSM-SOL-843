@@ -64,7 +64,7 @@ Observações raramente são obtidas sob condições idênticas e de maneira ind
 
 ## Observações dependentes
 
-Malhas amostrais espaciais podem ser preparadas usando a função `sp::spsample`. Para preparar uma malha regular, que contenha pontos de observação separados por distâncias idênticas, tanto no eixo x, como no eixo y, usamos o argumento `type = 'regular'`. Se quisermos que a malha seja exatamente centrada em relação à região amostral, então usamos o argumento `offset = c(0.5, 0.5)`. A Figura \@ref(pts-dependentes) mostra uma malha regular gerada usando `sp::spsample`.
+Malhas amostrais espaciais podem ser preparadas usando a função `sp::spsample`. Para preparar uma malha regular, que contenha pontos de observação separados por distâncias idênticas, tanto no eixo x, como no eixo y, usamos o argumento `type = 'regular'`. Se quisermos que a malha seja exatamente centrada em relação à região amostral, então usamos o argumento `offset = c(0.5, 0.5)`. A Figura \@ref(fig:pts-dependentes) mostra uma malha regular gerada usando `sp::spsample`.
 
 ```{r pts-dependentes, fig.cap="Conjunto de pontos de observação posicionados em malha centrada, de espaçamento fixo e regular em ambas as direções horizontal e vertical."}
 pts_regular <- sp::spsample(pedologia25, n = 50, type = "regular", offset = c(0.5, 0.5))
@@ -78,15 +78,46 @@ sp::spplot(
 
 ## Observações preferenciais
 
-```{r}
-pts_nonaligned <- sp::spsample(pedologia25, n = 10, type = "nonaligned", offset = c(0.5, 0.5))
+Na amostragem não-probabilística, como o próprio nome já diz, não são considerados os valores de probabilidade de inclusão para a seleção dos locais de amostragem. A escolha dos locais de amostragem depende da definição de um critério a ser atendido. A amostragem não-probabilística costuma ser dividida em três categorias:
+
+* casual,
+* conveniente, e
+* intencional.
+
+Na amostragem casual os locais de amostragem são escolhidos, fundamentalmente, em função da subjetividade da pessoa conduzindo a amostragem. Não existe um critério claro a ser atendido. Outros locais amostrais podem ser escolhidos caso outra pessoa conduza a amostragem, mesmo que não haja justificativa plausível para isso.
+
+A amostragem conveniente está diretamente relacionada à otimização do uso dos recursos disponíveis. Ela consiste em evitar realizar observações em locais de difícil acesso como áreas densamente florestadas, distantes de estradas, terrenos íngremes, ou áreas que apresentem risco para a saúde ou à vida devido à presença de, por exemplo, animais peçonhentos. Assim sendo, o critério usado para a
+definição dos locais de observação é a soma dos custos financeiro e operacional. Quanto menor forem os custos financeiro e operacional, maior será o número de observações.
+
+A amostragem intencional é semelhante à amostragem conveniente no sentido de que em ambas os locais amostrais são definidos a fim de otimizar um critério pré-determinado. A diferença fundamental entre as duas é a natureza desse critério. Enquanto na amostragem conveniente o critério tem origem puramente econômica, na amostragem intencional o critério tem origem pedológica e/ou estatística, podendo-se agregar critérios de origem econômica.
+
+Como exemplo de amostragem preferencial, vamos analizar novamente os perfis modais do mapa pedológico preparado na escalada cartográfica de 1:25000. Para isso seguimos os mesmos três passos da unidade anterior:
+
+1. Descarregamos os dados do Repositório Brasileiro de Dados de Ferro do Solo usando `febr:observations` e `febr::layers`;
+2. Agregamos os dados das observações e das camadas num `data.frame` único;
+3. Transformamos esse `data.frame` para um `SpatialPointsDataFrame`.
+
+```{r, message=FALSE, warning=FALSE}
+perfis25_o <- febr::observations('ctb0030', which.cols = 'all', progress = FALSE)
+perfis25_l <- febr::layers('ctb0030', which.cols = 'all', missing.data = 'keep', progress = FALSE)
+id <- c('dataset_id', 'observacao_id')
+perfis25 <- 
+  merge(x = perfis25_o, y = perfis25_l, by.x = id, by.y = id) %>% 
+  select(observacao_id, coord_x, coord_y, taxon_sibcs_2009, ca_kcl_aas, areia_, argila_)
+rm(perfis25_l, perfis25_o)
+sp::coordinates(perfis25) <- c('coord_x', 'coord_y')
+sp::proj4string(perfis25) <- sirgas2000
+perfis25 <- sp::spTransform(perfis25, wgs84utm22s)
+```
+
+A Figura \@ref(fig:pts-preferenciais) mostra a localização de 10 dos 11 perfis modais (lembre que um dos perfis modais está localizado para além dos limites da área mapeada).
+
+```{r pts-preferenciais, message=FALSE, warning=FALSE}
 sp::spplot(
   pedologia25, col.regions = col_soil_um, alpha.regions = 0.3,
-  main = "Malha amostral em zigue-zague", colorkey = FALSE, sub = glue('n = {length(pts_nonaligned)}')) +
+  main = "Localização dos perfis modais", colorkey = FALSE, sub = glue('n = {length(perfis25) - 1}')) +
   latticeExtra::as.layer(
-    lattice::xyplot(x2 ~ x1, data = pts_nonaligned@coords %>% as.data.frame(), col = 'red', pch = 17)) +
-  latticeExtra::layer(
-    lattice::panel.arrows(x1 = pts_nonaligned@coords[-1, 1], y1 = pts_nonaligned@coords[-1, 2], x0 = pts_nonaligned@coords[-length(pts_nonaligned), 1], y0 = pts_nonaligned@coords[-length(pts_nonaligned), 2], length = 0.1))
+    lattice::xyplot(coord_y ~ coord_x, data = as.data.frame(perfis25@coords), col = 'red', pch = 17))
 ```
 
 

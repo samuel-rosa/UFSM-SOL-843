@@ -188,6 +188,12 @@ plot(variograma, ylab = "Semivariância", xlab = "Distância (m)") +
 
 Semivariograma empírico suavizado (Figura \@ref(fig:vario-empirico)).
 
+Parâmetros do semivariograma:
+
+* Variância total (patamar)
+* Variância residual (pepita)
+* Alcance
+
 ```{r vario-empirico, fig.asp=1}
 limites <- seq(0, 2500, length.out = 15)
 variograma <- gstat::variogram(residuo ~ 1, pontos400in, boundaries = limites)
@@ -213,11 +219,25 @@ plot(variograma, ylab = "Semivariância", xlab = "Distância (m)") +
     pos = c(1, 1, 3, 4)))
 ```
 
-Parâmetros do semivariograma:
+Vamos conhecer três funções autorizadas clássicas que podem ser usadas para modelar o semivariograma empírico: 
 
-* Variância total (patamar)
-* Variância residual (pepita)
-* Alcance 
+* Puro ruído (sem estrutura)
+* Exponencial (com patamar e alcance)
+* Gaussiana (com patamar e alcance)
 
-
-
+```{r vario-funcoes, fig.asp=1, fig.cap='Três funções autorizadas para modelar o semivariograma empírico.'}
+# variograma <- gstat::variogram(residuo ~ 1, pontos400in, boundaries = limites)
+m_exp <- gstat::vgm(psill = 37000 - 8000, model = 'Exp', range = 300, nugget = 8000)
+m_gau <- gstat::vgm(psill = 37000 - 12000, model = 'Gau', range = 400, nugget = 12000)
+m_nug <- gstat::vgm(psill = 37000, model = 'Nug', range = 0, nugget = 0)
+plot(variograma, ylab = "Semivariância", xlab = "Distância (m)") +
+  layer(panel.lines(
+    gstat::variogramLine(m_exp, dist_vector = seq(0, 2500, length.out = 1500)), col = "darkgreen")) +
+  layer(panel.lines(
+    gstat::variogramLine(m_gau, dist_vector = seq(0, 2500, length.out = 1500)), col = "orange")) +
+  layer(panel.lines(
+    gstat::variogramLine(m_nug, dist_vector = seq(0, 2500, length.out = 1500)), col = "purple")) +
+  layer(panel.text(
+    x = rep(1000, 3), y = seq(10000, 15000, length.out = 3), c('Exponencial', 'Gaussiana','Puro ruído'),
+    col = c('darkgreen', 'orange', 'purple'), pos = 4))
+```

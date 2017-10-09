@@ -279,17 +279,15 @@ plot(variograma, m_exp, col.line = 'red', xlab = 'Distância (m)', ylab = 'Semiv
 Predições espaciais
 
 ```{r}
-mapa_exp <- gstat::krige(ca_kcl_aas ~ 1, pontos400, grid, m_exp)
-mapa_exp$var1.var <- sqrt(mapa_exp$var1.var)
+mapa_exp <- gstat::krige(residuo ~ 1, pontos400in, grid, m_exp, debug.level = 0)
 sp::gridded(mapa_exp) <- TRUE
-sp::spplot(mapa_exp, 1, col.regions = col_soil_var, main = expression("Predição (cmol"[c]*" kg"^-1*")")) + 
-  latticeExtra::as.layer(lattice::xyplot(
-    coord_y ~ coord_x, data = pontos400@coords %>% as.data.frame(), pch = 21, col = 'red', cex = 0.5))
+sp::spplot(mapa_exp, 1, col.regions = col_soil_var)
 ```
 
 
 ```{r}
-sp::spplot(mapa_exp, 2, col.regions = col_soil_var, main = expression("Incerteza (cmol"[c]*" kg"^-1*")"))
+mapa_exp$var1.var <- sqrt(mapa_exp$var1.var)
+sp::spplot(mapa_exp, 2, col.regions = col_soil_var)
 ```
 
 ```{r, echo=FALSE, eval=FALSE}

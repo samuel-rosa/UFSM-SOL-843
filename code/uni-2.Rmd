@@ -12,6 +12,48 @@ lang: pt
 **Temas**: Observações dependentes e preferenciais. Resíduos espacialmente correlacionados. A visão estocástica do modelo contínuo de variação espacial. O processo gerador aleatório e espacialmente autocorrelacionado. Semivariância e modelos matemáticos do semivariograma empírico.
 </div>
 
+```{r, message=FALSE, warning=FALSE}
+# Pacotes
+library(magrittr)
+library(dplyr)
+library(glue)
+library(lattice)
+
+# Sistemas de referência de coordenadas (Fonte: http://spatialreference.org/ref/epsg/)
+wgs84utm22s <- sp::CRS('+proj=utm +zone=22 +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
+sirgas2000 <- sp::CRS('+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs')
+
+# Rampas de cores
+col_soil_var <- topo.colors(100)
+```
+
+Vamos descarregar os arquivos do mapa pedológico para um diretório local. O nome desse diretório é definido abaixo pelo objeto `data_folder`. Altere o caminho para esse diretório conforme necessário. Caso você já tenha descarregado os arquivos do mapa pedológico, então `data_folder` deve ser o caminho para o diretório onde esses arquivos se encontram.
+
+```{r}
+data_folder <- '../data/'
+ext <- c('dbf', 'prj', 'shp', 'shx')
+files <- glue('pedologia25.{ext}')
+download <- !all(files %in% list.files(data_folder)) 
+if (download) {
+  url <- 'https://github.com/samuel-rosa/UFSM-SOL-843/tree/master/data/'
+  url <- glue('{url}{files}')
+  destfile <- glue('{data_folder}{files}')
+  for (i in 1:length(files)) {
+    download.file(url = url[i], destfile = destfile[i])
+  }
+}
+```
+
+Agora você já pode carregar o mapa pedológico para o seu ambiente de trabalho. Para isso, use a função `raster::shapefile`. Note que se o sistema operacional do seu computador for o MS Windows, pode ser necessário incluir o o argumento `encoding = 'UTF-8'` na função `raster::shapefile` para garantir que os carácteres especiais usados nos nomes das unidades de mapeamento seja reconhecidos. Verifique se a estrutura de `pedologia25` está conforme o esperado para um objeto do tipo `SpatialPolygonsDataFrame`. Note que a função `sp::spTransform` é usada para projetar as coordenadas original no plano cartesiano (UTM).
+
+```{r}
+pedologia25 <- 
+  glue('{data_folder}pedologia25.shp') %>% 
+  raster::shapefile(stringsAsFactors = TRUE) %>% 
+  sp::spTransform(wgs84utm22s)
+str(pedologia25, 2)
+```
+
 # Introdução aos dados espaciais
 
 O objetivo principal da Unidade II é apresentar as propriedades geoestatísticas dos dados espaciais de maneira a demonstrar como o modelo discreto de variação espacial, em ambas as visões determinística e estocástica, e o modelo contínuo de variação espacial, em sua visão determinística, comumente são inapropriados para a sua análise.
@@ -21,6 +63,19 @@ O objetivo principal da Unidade II é apresentar as propriedades geoestatística
 Observações raramente são obtidas sob condições idênticas e de maneira independente umas das outras. A amostragem casual costuma ser tomada -- erroneamente -- como amostragem aleatória. A amostragem conveniente é comum em levantamentos pedológicos, assim como a amostragem intencional. Mostrar exemplos gráficos desses métodos de amostragem. Demonstrar que, na modelagem geoestatística, a fonte de aleatoriedade advém do processo gerador dos dados, diferente da estatística clássica, onde a aleatoriedade é garantida pelo delineamento amostral. Com observações dependentes torna-se impossível obter estimativas não enviesadas dos parâmetros do modelo discreto de variação espacial -- isso dificulta, por exemplo, a comparação entre categorias.
 
 ## Observações dependentes
+
+Malhas amostrais espaciais podem ser preparadas usando a função `sp::spsample`. Para preparar uma malha regular, que contenha pontos de observação separados por distâncias idênticas, tanto no eixo x, como no eixo y, usamos o argumento `type = 'regular'`. Se quisermos que a malha seja exatamente centrada em relação à região amostral, então usamos o argumento `offset = c(0.5, 0.5)`. A Figura \@ref(pts-dependentes) mostra uma malha regular gerada usando `sp::spsample`.
+
+```{r pts-dependentes, fig.cap="Conjunto de pontos de observação posicionados em malha centrada, de espaçamento fixo e regular em ambas as direções horizontal e vertical."}
+pts <- sp::spsample(pedologia25, n = 50, type = "regular", offset = c(0.5, 0.5))
+col_soil_um <- terrain.colors(nlevels(pedologia25$um))
+sp::spplot(
+  pedologia25, col.regions = col_soil_um, alpha.regions = 0.3,
+  main = "Malha amostral regular", colorkey = FALSE, sub = glue('n = {length(pts)}')) +
+  lattice::xyplot(x2 ~ x1, data = pts@coords %>% as.data.frame(), col = 'red', pch = 17) %>% 
+  latticeExtra::as.layer()
+```
+
 
 ## Observações preferenciais
 

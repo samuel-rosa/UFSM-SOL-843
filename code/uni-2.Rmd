@@ -163,8 +163,10 @@ pontos400in@data <-
     residuo = mean(areia_) - areia_)
 ```
 
-```{r}
-sp::bubble(pontos400in, 'residuo', do.sqrt = FALSE, main = "Resíduos do conteúdo de areia")
+Calculado os resíduos, vamos agora verificar sua distribuição espacial. Para isso usamos um gráfico de bolhas, o qual pode ser produzido usando a função `sp::bubble`. Um gráfico de bolha é uma forma de representação gráfica dos valores da variável de interesse em cada observação, onde o tamanho e cor do símbolo são proporcionais ao valor da variável de interesse. Na Figura \@ref(fig:bubble-residuo), as observações com resíduo negativo são indicadas em magenta, enquanto as observações em verde representam aquelas cujo resíduo é positivo. Quanto maior o diâmetro do círculo, maior é o resíduo em termos absolutos.
+
+```{r bubble-residuo}
+sp::bubble(pontos400in, 'residuo', do.sqrt = FALSE, main = "Resíduos")
 ```
 
 

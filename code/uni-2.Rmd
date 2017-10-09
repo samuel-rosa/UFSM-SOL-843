@@ -181,9 +181,10 @@ A Figura \@ref(fig:vario-nuvem) mostra a nuvem semivariográfica dos resíduos d
 
 ```{r vario-nuvem, fig.cap='Nuvem semivariográfica.', fig.asp=1}
 variograma <- gstat::variogram(residuo ~ 1, pontos400in, cloud = TRUE, cutoff = Inf)
+res_var <- var(pontos400in$residuo)
 plot(variograma, ylab = "Semivariância", xlab = "Distância (m)") +
-  latticeExtra::layer(lattice::panel.abline(h = var(pontos400in$residuo), col = 'red', lty = 'dashed')) +
-  latticeExtra::layer(lattice::panel.text(y = var(pontos400in$residuo), x = 1500, label = "Variância amostral", pos = 3))
+  layer(panel.abline(h = res_var, col = 'red', lty = 'dashed')) +
+  layer(panel.text(y = res_var, x = 1500, label = "Variância amostral", pos = 3))
 ```
 
 Semivariograma empírico suavizado (Figura \@ref(fig:vario-empirico)).
@@ -199,16 +200,16 @@ limites <- seq(0, 2500, length.out = 15)
 variograma <- gstat::variogram(residuo ~ 1, pontos400in, boundaries = limites)
 plot(variograma, ylab = "Semivariância", xlab = "Distância (m)") +
   layer(panel.abline(
-    h = c(var(pontos400in$residuo), min(variograma$gamma)), v = 1500, col = 'red', lty = 'dashed')) +
+    h = c(res_var, min(variograma$gamma)), v = 1500, col = 'red', lty = 'dashed')) +
   layer(panel.text(
     x = c(600, 600, 1500), 
-    y = c(var(pontos400in$residuo), min(variograma$gamma), max(variograma$gamma) / 2), 
+    y = c(res_var, min(variograma$gamma), max(variograma$gamma) / 2), 
     label = c("Patamar (Variância total)", "Pepita (Variância residual)", 'Alcance'), 
     pos = c(3, 3, 1), srt = c(0, 0, 90))) +
   
   layer(panel.arrows(
     x0 = c(2250, 2250, 0), x1 = c(2250, 2250, 1500), y0 = c(min(variograma$gamma), 0, 18000), 
-    y1 = c(var(pontos400in$residuo), min(variograma$gamma), 18000), length = 0.1, ends = 'both')) +
+    y1 = c(res_var, min(variograma$gamma), 18000), length = 0.1, ends = 'both')) +
   
   layer(panel.text(
     x = c(2270, 2270, 750, 0),

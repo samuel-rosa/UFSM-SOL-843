@@ -269,15 +269,11 @@ gstat::show.vgms(main = "Modelos do semivariograma", xlab = "Distância", ylab =
 
 Ajuste do modelo ao variograma empírico
 
-```{r}
+Figura \@ref(fig:vario-ajuste)
+
+```{r vario-ajuste, fig.asp=1, fig.cap='Ajuste da função exponencial ao semivariograma empírico.'}
 m_exp <- gstat::fit.variogram(variograma, m_exp)
-plot(variograma, m_exp, col.line = 'red', main = "Modelo exponencial ajustado ao semivariorgama") +
-  latticeExtra::layer(lattice::panel.abline(v = m_exp$range, lty = 'dashed')) +
-  latticeExtra::layer(lattice::panel.abline(h = m_exp$psill, lty = 'dashed')) +
-  latticeExtra::layer(lattice::panel.text(
-    y = m_exp$psill + 4, x = c(10, 10), c('Pepita', 'Patamar'), pos = 4)) +
-  latticeExtra::layer(lattice::panel.text(
-    y = 50, x = m_exp$range[2], 'Alcance', pos = 4, srt = 270))
+plot(variograma, m_exp, col.line = 'red', xlab = 'Distância (m)', ylab = 'Semivariância')
 ```
 
 Predições espaciais

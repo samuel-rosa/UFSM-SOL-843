@@ -135,14 +135,17 @@ rm(pontos400_l, pontos400_o)
 sp::coordinates(pontos400) <- ~ coord_x + coord_y
 sp::proj4string(pontos400) <- sirgas2000
 pontos400 <- sp::spTransform(pontos400, wgs84utm22s)
+pontos400$um <- sp::over(x = pontos400, y = pedologia25) %>% unlist()
+pontos400in <- pontos400[!is.na(pontos400$um), ]
 ```
 
-```{r}
+Figura \@ref(fig:pts400-in).
+
+```{r pts400-in, fig.cap='Distribuição espacial das 376 observações localizadas dentro dos limites da área de estudo.'}
 sp::spplot(
-  pedologia25, col.regions = col_soil_um, alpha.regions = 0.3,
-  main = "Localização das 400 observações", colorkey = FALSE, sub = glue('n = {length(pontos400)}')) +
+  pedologia25, col.regions = col_soil_um, alpha.regions = 0.3, colorkey = FALSE) +
   latticeExtra::as.layer(
-    lattice::xyplot(coord_y ~ coord_x, data = as.data.frame(pontos400@coords), col = 'red', pch = 17))
+    lattice::xyplot(coord_y ~ coord_x, data = as.data.frame(pontos400in@coords), col = 'red', pch = 17))
 ```
 
 Como no encontro anterior, vamos estimar a média da variável de interesse para cada categoria (unidade de mapeamento) a partir das observações do solo que estão dentro de cada uma delas. Usamos a função `sp::over` para identificar a categoria dentro da qual cada observação do solo se encontra. O resultado é armazenado na coluna `um`. Para facilitar nosso trabalho, vamor criar um novo objeto espacial chamado `pontos400in` para armazenar apenas as observações que estão no interior (`in`) dos limites da área de estudo. Depois de estimada a média de cada categoria, podemos calcular o resíduo para cada observação:
@@ -152,8 +155,6 @@ $$e(\boldsymbol{s}_{ij}) = \bar{y}_j - y(\boldsymbol{s}_{ij})$$
 A equação acima mostra que o resíduo, $e(\boldsymbol{s}_{ij})$, de uma observação espacial qualquer, $y(\boldsymbol{s}_{ij})$, localizada na categoria $j$, é dado pela diferença entre a média daquela categoria, $\bar{y}_j$, e o valor da respectiva observação.
 
 ```{r}
-pontos400$um <- sp::over(x = pontos400, y = pedologia25) %>% unlist()
-pontos400in <- pontos400[!is.na(pontos400$um), ]
 pontos400in@data <- 
   pontos400in@data %>% 
   group_by(um) %>%

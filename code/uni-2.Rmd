@@ -61,7 +61,37 @@ O objetivo principal da Unidade II é apresentar as propriedades geoestatística
 
 # Amostragem espacial
 
-Observações raramente são obtidas sob condições idênticas e de maneira independente umas das outras. A amostragem casual costuma ser tomada -- erroneamente -- como amostragem aleatória. A amostragem conveniente é comum em levantamentos pedológicos, assim como a amostragem intencional. Mostrar exemplos gráficos desses métodos de amostragem. Demonstrar que, na modelagem geoestatística, a fonte de aleatoriedade advém do processo gerador dos dados, diferente da estatística clássica, onde a aleatoriedade é garantida pelo delineamento amostral. Com observações dependentes torna-se impossível obter estimativas não enviesadas dos parâmetros do modelo discreto de variação espacial -- isso dificulta, por exemplo, a comparação entre categorias.
+A amostragem é um dos maiores contribuintes para os custos da modelagem do ambiente. Assim, o adequado planejamento amostral é essencial para reduzir a necessidade de recursos (financeiros, psicológicos, humanos, entre outros) e maximizar o número de observações possíveis.
+
+A situação ideal é aquela em que os recursos disponíveis não impõe quaisquer limitações à amostragem. Nesse caso seria possível fazer observações e coletar amostras em diversas etapas. Por exemplo, iniciaríamos com um levantamento exploratório para identificar a estrutura da variação espacial da variável de interesse. De posse desse novo conhecimento, executaríamos uma nova etapa amostral a fim de atender a algum critério como, por exemplo, obter uma cobertura espacial aproximadamente uniforme da área sendo modelada. Caso os resultados ainda sejam insatisfatórios, uma nova etapa amostral poderia ser executada para, por exemplo, fazer observações em locais específicos cujas condições ambientais estejam sub-representadas na base de dados. Por fim, calibrado o modelo espacial do solo e feitas as predições espaciais, coletaríamos amostras para validação do modelo preditivo em número suficiente para garantir um nível de confiança pré-determinado.
+
+Mas a situação ideal está longe de ser o que acontece na prática. Em geral temos que fazer todas as observações em uma única fase, coletando todo o material possível, inclusive para as amostras de validação. Isso requer que o tipo de amostragem mais apropriado seja utilizado a fim de otimizar o uso dos recursos disponíveis e obter o melhor modelo preditivo possível. E qual seria o tipo de amostragem mais apropriado? Uma resposta universal à essa pergunda continua desconhecida. A melhor estratégia costuma ser avaliar os diferentes tipos de amostragem frente (1) os objetivos do projeto, (2) os recursos disponíveis, e (3) as dificuldades operacionais encontradas na área sendo modelada.
+
+Podemos dizer que existem dois tipos fundamentais de amostragem espacial:
+
+* probabilística, e
+* não-probabilística.
+
+A característica fundamental da amostragem probabilística é que a chance de um determinado local ser amostrado (probabilidade de inclusão) é conhecida e maior do que zero. Em outras palavras, todo e qualquer local possui alguma chance de ser amostrado, mesmo que alguns tenham maior chance do que outros. Um local que não pode ser amostrado tem probabilidade de inclusão igual a zero.
+
+A amostragem probabilística é muito utilizada em experimentos controlados, como aqueles desenvolvidos em campos experimentais, casas de vegetação e laboratórios. No caso da modelagem espacial, a amostragem probabilística costuma ser usada para a validação das predições espaciais. Entretanto, ela também pode ser usada para obter observações para a calibração dos modelos preditivos. São exemplo a amostragem aleatória simples e a amostragem aleatória estratificada simples.
+
+Na amostragem não-probabilística, como o próprio nome já diz, não são considerados os valores de probabilidade de inclusão para a seleção dos locais de amostragem. A escolha dos locais de amostragem depende da definição de um critério a ser atendido. A amostragem não-probabilística costuma ser dividida em três categorias:
+
+* casual,
+* conveniente, e
+* intencional.
+
+Na amostragem casual os locais de amostragem são escolhidos, fundamentalmente, em função da subjetividade da pessoa conduzindo a amostragem. Não existe um critério claro a ser atendido. Outros locais amostrais podem ser escolhidos caso outra pessoa conduza a amostragem, mesmo que não haja justificativa plausível para isso.
+
+A amostragem conveniente está diretamente relacionada à otimização do uso dos recursos disponíveis. Ela consiste em evitar realizar observações em locais de difícil acesso como áreas densamente florestadas, distantes de estradas, terrenos íngremes, ou áreas que apresentem risco para a saúde ou à vida devido à presença de, por exemplo, animais peçonhentos. Assim sendo, o critério usado para a
+definição dos locais de observação é a soma dos custos financeiro e operacional. Quanto menor forem os custos financeiro e operacional, maior será o número de observações.
+
+A amostragem intencional é semelhante à amostragem conveniente no sentido de que em ambas os locais amostrais são definidos a fim de otimizar um critério pré-determinado. A diferença fundamental entre as duas é a natureza desse critério. Enquanto na amostragem conveniente o critério tem origem puramente econômica, na amostragem intencional o critério tem origem pedológica e/ou estatística, podendo-se agregar critérios de origem econômica.
+
+Você já deve ter percebido que, no contexto espacial, a amostragem não-probabilística é mais comum do que a amostragem probabilística. Os dois principais entraves à análise (geo)estatística clássica dos dados obtivos via amostragem não-probabilística são a falta de independência entre as observações e a seleção preferencial dos locais de amostragem.
+
+<!-- Observações raramente são obtidas sob condições idênticas e de maneira independente umas das outras. A amostragem casual costuma ser tomada -- erroneamente -- como amostragem aleatória. A amostragem conveniente é comum em levantamentos pedológicos, assim como a amostragem intencional. Mostrar exemplos gráficos desses métodos de amostragem. Demonstrar que, na modelagem geoestatística, a fonte de aleatoriedade advém do processo gerador dos dados, diferente da estatística clássica, onde a aleatoriedade é garantida pelo delineamento amostral. Com observações dependentes torna-se impossível obter estimativas não enviesadas dos parâmetros do modelo discreto de variação espacial -- isso dificulta, por exemplo, a comparação entre categorias. -->
 
 ## Observações dependentes
 
@@ -77,19 +107,6 @@ sp::spplot(
 ```
 
 ## Observações preferenciais
-
-Na amostragem não-probabilística, como o próprio nome já diz, não são considerados os valores de probabilidade de inclusão para a seleção dos locais de amostragem. A escolha dos locais de amostragem depende da definição de um critério a ser atendido. A amostragem não-probabilística costuma ser dividida em três categorias:
-
-* casual,
-* conveniente, e
-* intencional.
-
-Na amostragem casual os locais de amostragem são escolhidos, fundamentalmente, em função da subjetividade da pessoa conduzindo a amostragem. Não existe um critério claro a ser atendido. Outros locais amostrais podem ser escolhidos caso outra pessoa conduza a amostragem, mesmo que não haja justificativa plausível para isso.
-
-A amostragem conveniente está diretamente relacionada à otimização do uso dos recursos disponíveis. Ela consiste em evitar realizar observações em locais de difícil acesso como áreas densamente florestadas, distantes de estradas, terrenos íngremes, ou áreas que apresentem risco para a saúde ou à vida devido à presença de, por exemplo, animais peçonhentos. Assim sendo, o critério usado para a
-definição dos locais de observação é a soma dos custos financeiro e operacional. Quanto menor forem os custos financeiro e operacional, maior será o número de observações.
-
-A amostragem intencional é semelhante à amostragem conveniente no sentido de que em ambas os locais amostrais são definidos a fim de otimizar um critério pré-determinado. A diferença fundamental entre as duas é a natureza desse critério. Enquanto na amostragem conveniente o critério tem origem puramente econômica, na amostragem intencional o critério tem origem pedológica e/ou estatística, podendo-se agregar critérios de origem econômica.
 
 Como exemplo de amostragem preferencial, vamos analizar novamente os perfis modais do mapa pedológico preparado na escalada cartográfica de 1:25000. Para isso seguimos os mesmos três passos da unidade anterior:
 

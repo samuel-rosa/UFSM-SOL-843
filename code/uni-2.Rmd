@@ -200,16 +200,27 @@ Calculado os resíduos, vamos agora verificar sua distribuição espacial. Para 
 sp::bubble(pontos400in, 'residuo', do.sqrt = FALSE, main = "")
 ```
 
-# Modelo contínuo de variação espacial
+# Modelo contínuo de variação espacial: visão estocástica
 
-O processo gerador aleatório e espacialmente autocorrelacionado.
+## Processo aleatório espacialmente autocorrelacionado
 
-Como quantificar a dependência espacial?
+$Y$
 
-$$\sigma^2 = \{y(\boldsymbol{s}_i) - \bar{y}(\boldsymbol{s})\}^2 + \{y(\boldsymbol{s}_j) - \bar{y}(\boldsymbol{s})\}^2$$
+## Medida da dependência espacial
 
+Como quantificar a dependência espacial? Podemos usar a variância entre os pares de observações.
 
-## Modelo contínuo: visão estocástica
+$$\sigma^2 = \left\{ y(\boldsymbol{s}_i) - \bar{y}(\boldsymbol{s}) \right\}^2 + \left\{y(\boldsymbol{s}_j) - \bar{y}(\boldsymbol{s})\right\}^2$$
+
+Isso é exatamente o mesmo que:
+
+$$\sigma^2 = \frac{1}{2} \left\{ y(\boldsymbol{s}_i) - y(\boldsymbol{s}_j) \right\}^2$$
+
+Para usar a variância $\sigma^2$, precisamos assumir que ela depende apenas da distância geográfica que separa as observações $\boldsymbol{s}_i$ e $\boldsymbol{s}_j$. Em outras palavras, assumir que a variância não depende da posição absoluta das observações no espaço geográfico.
+
+Também precisamos assumir que a diferença esperada -- a média -- seja igual à zero, pelo menos dentro de pequenos intervalos de distância entre as observações. Em outras palavras, assumir que, quando avaliada localmente, a média não varia.
+
+Vamos lembrar como é calculada a variância dos dados no contexto não-espacial.
 
 A Figura \@ref(fig:vario-nuvem) mostra a nuvem semivariográfica dos resíduos da variável de interesse calculados acima.
 

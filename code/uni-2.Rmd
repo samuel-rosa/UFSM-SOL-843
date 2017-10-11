@@ -1,5 +1,5 @@
 ---
-title: "Unidade II -- Propriedades dos Dados Espaciais"
+title: "Unidade II -- Características dos Dados Espaciais"
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
 output: 
@@ -11,6 +11,8 @@ lang: pt
 <div id="summary">
 **Temas**: Observações dependentes e preferenciais. Resíduos espacialmente correlacionados. A visão estocástica do modelo contínuo de variação espacial. O processo gerador aleatório e espacialmente autocorrelacionado. Semivariância e modelos matemáticos do semivariograma empírico.
 </div>
+
+Configuração inicial.
 
 ```{r, message=FALSE, warning=FALSE}
 # Pacotes
@@ -52,14 +54,15 @@ pedologia25 <-
   glue('{data_folder}pedologia25.shp') %>% 
   raster::shapefile(stringsAsFactors = TRUE) %>% 
   sp::spTransform(wgs84utm22s)
+col_soil_um <- terrain.colors(nlevels(pedologia25$um))
 str(pedologia25, 2)
 ```
 
-# Introdução aos dados espaciais
+<!-- # Introdução aos dados espaciais -->
 
-O objetivo principal da Unidade II é apresentar as propriedades geoestatísticas dos dados espaciais de maneira a demonstrar como o modelo discreto de variação espacial, em ambas as visões determinística e estocástica, e o modelo contínuo de variação espacial, em sua visão determinística, comumente são inapropriados para a sua análise.
+<!-- O objetivo principal da Unidade II é apresentar as propriedades geoestatísticas dos dados espaciais de maneira a demonstrar como o modelo discreto de variação espacial, em ambas as visões determinística e estocástica, e o modelo contínuo de variação espacial, em sua visão determinística, comumente são inapropriados para a sua análise. -->
 
-# Amostragem espacial
+# Introdução à amostragem espacial
 
 A amostragem é um dos maiores contribuintes para os custos da modelagem do ambiente. Assim, o adequado planejamento amostral é essencial para reduzir a necessidade de recursos (financeiros, psicológicos, humanos, entre outros) e maximizar o número de observações possíveis.
 
@@ -72,9 +75,24 @@ Podemos dizer que existem dois tipos fundamentais de amostragem espacial:
 * probabilística, e
 * não-probabilística.
 
+## Amostragem probabilística
+
 A característica fundamental da amostragem probabilística é que a chance de um determinado local ser amostrado (probabilidade de inclusão) é conhecida e maior do que zero. Em outras palavras, todo e qualquer local possui alguma chance de ser amostrado, mesmo que alguns tenham maior chance do que outros. Um local que não pode ser amostrado tem probabilidade de inclusão igual a zero.
 
-A amostragem probabilística é muito utilizada em experimentos controlados, como aqueles desenvolvidos em campos experimentais, casas de vegetação e laboratórios. No caso da modelagem espacial, a amostragem probabilística costuma ser usada para a validação das predições espaciais. Entretanto, ela também pode ser usada para obter observações para a calibração dos modelos preditivos. São exemplo a amostragem aleatória simples e a amostragem aleatória estratificada simples.
+A amostragem probabilística é muito utilizada em experimentos controlados, como aqueles desenvolvidos em campos experimentais, casas de vegetação e laboratórios. No caso da modelagem espacial, a amostragem probabilística costuma ser usada para a validação das predições espaciais. Entretanto, ela também pode ser usada para obter observações para a calibração dos modelos preditivos. São exemplo a amostragem aleatória simples e a amostragem aleatória estratificada simples (Figura \@ref(fig:pts-random)).
+
+```{r pts-random, fig.cap='Dois conjuntos de pontos de observação espacial com localização selecionada de maneira aleatória.'}
+pts_random <- list()
+for (i in 1:2) {
+  pts_random[[i]] <- sp::spsample(x = pedologia25, n = 20, type = "random")
+}
+sp::spplot(
+  pedologia25, col.regions = col_soil_um, alpha.regions = 0.3, colorkey = FALSE) +
+  as.layer(xyplot(y ~ x, data = as.data.frame(pts_random[[1]]@coords), col = 'red', pch = 17)) +
+  as.layer(xyplot(y ~ x, data = as.data.frame(pts_random[[2]]@coords), col = 'blue', pch = 17))
+```
+
+## Amostragem não-probabilística
 
 Na amostragem não-probabilística, como o próprio nome já diz, não são considerados os valores de probabilidade de inclusão para a seleção dos locais de amostragem. A escolha dos locais de amostragem depende da definição de um critério a ser atendido. A amostragem não-probabilística costuma ser dividida em três categorias:
 
@@ -89,24 +107,23 @@ definição dos locais de observação é a soma dos custos financeiro e operaci
 
 A amostragem intencional é semelhante à amostragem conveniente no sentido de que em ambas os locais amostrais são definidos a fim de otimizar um critério pré-determinado. A diferença fundamental entre as duas é a natureza desse critério. Enquanto na amostragem conveniente o critério tem origem puramente econômica, na amostragem intencional o critério tem origem pedológica e/ou estatística, podendo-se agregar critérios de origem econômica.
 
-Você já deve ter percebido que, no contexto espacial, a amostragem não-probabilística é mais comum do que a amostragem probabilística. Os dois principais entraves à análise (geo)estatística clássica dos dados obtivos via amostragem não-probabilística são a falta de independência entre as observações e a seleção preferencial dos locais de amostragem.
+Você já deve ter percebido que, no contexto espacial, a amostragem não-probabilística é mais comum do que a amostragem probabilística. Os dois principais entraves à análise estatística clássica dos dados obtivos via amostragem não-probabilística são a falta de independência entre as observações e a seleção preferencial dos locais de amostragem.
 
 <!-- Observações raramente são obtidas sob condições idênticas e de maneira independente umas das outras. A amostragem casual costuma ser tomada -- erroneamente -- como amostragem aleatória. A amostragem conveniente é comum em levantamentos pedológicos, assim como a amostragem intencional. Mostrar exemplos gráficos desses métodos de amostragem. Demonstrar que, na modelagem geoestatística, a fonte de aleatoriedade advém do processo gerador dos dados, diferente da estatística clássica, onde a aleatoriedade é garantida pelo delineamento amostral. Com observações dependentes torna-se impossível obter estimativas não enviesadas dos parâmetros do modelo discreto de variação espacial -- isso dificulta, por exemplo, a comparação entre categorias. -->
 
-## Observações dependentes
+### Observações dependentes
 
 Malhas amostrais espaciais podem ser preparadas usando a função `sp::spsample`. Para preparar uma malha regular, que contenha pontos de observação separados por distâncias idênticas, tanto no eixo x, como no eixo y, usamos o argumento `type = 'regular'`. Se quisermos que a malha seja exatamente centrada em relação à região amostral, então usamos o argumento `offset = c(0.5, 0.5)`. A Figura \@ref(fig:pts-dependentes) mostra uma malha regular gerada usando `sp::spsample`.
 
 ```{r pts-dependentes, fig.cap="Conjunto de pontos de observação posicionados em malha centrada, de espaçamento fixo e regular em ambas as direções horizontal e vertical."}
 pts_regular <- sp::spsample(pedologia25, n = 50, type = "regular", offset = c(0.5, 0.5))
-col_soil_um <- terrain.colors(nlevels(pedologia25$um))
 sp::spplot(
   pedologia25, col.regions = col_soil_um, alpha.regions = 0.3, colorkey = FALSE) +
   as.layer(xyplot(x2 ~ x1, data = as.data.frame(pts_regular@coords), col = 'red', pch = 17))
   
 ```
 
-## Observações preferenciais
+### Observações preferenciais
 
 Como exemplo de amostragem preferencial, vamos analizar novamente os perfis modais do mapa pedológico preparado na escalada cartográfica de 1:25000. Para isso seguimos os mesmos três passos da unidade anterior:
 
@@ -135,9 +152,7 @@ sp::spplot(
   as.layer(xyplot(coord_y ~ coord_x, data = as.data.frame(perfis25@coords), col = 'red', pch = 17))
 ```
 
-# Dependência espacial
-
-## Resíduos correlacionados
+### Resíduos correlacionados
 
 Pela 1ª Lei da Geografia sabe-se que objetos mais próximos entre si são mais similares do que objetos que estão distantes uns dos outros. Disso resulta que os resíduos dos modelos são, também, mais parecidos entre si quanto mais próximas entre si estiverem as observações. Exemplificar usando uma variável pedológica, primeiro, com uma covariável, depois num transecto. A existência de correlação espacial faz com que o modelo discreto seja subótimo, portanto menos realista. O mesmo se aplica ao modelo contínuo determinístico, baseado em interpoladores locais, pois os mesmos geralmente ignoram a extensão da correlação espacial e/ou usam critérios heurísticos.
 

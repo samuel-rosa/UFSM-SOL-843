@@ -182,16 +182,16 @@ sp::spplot(
 
 Como no encontro anterior, vamos estimar a média da variável de interesse para cada categoria (unidade de mapeamento) a partir das observações do solo que estão dentro de cada uma delas. Usamos a função `sp::over` para identificar a categoria dentro da qual cada observação do solo se encontra. O resultado é armazenado na coluna `um`. Para facilitar nosso trabalho, vamor criar um novo objeto espacial chamado `pontos400in` para armazenar apenas as observações que estão no interior (`in`) dos limites da área de estudo. Depois de estimada a média de cada categoria, podemos calcular o resíduo para cada observação:
 
-$$e(\boldsymbol{s}_{ij}) = \bar{y}(\boldsymbol{s}_j) - y(\boldsymbol{s}_{ij})$$
+$$e(\boldsymbol{s}_{ik}) = y(\boldsymbol{s}_{ik}) - \bar{y}(\boldsymbol{s}_k)$$
 
-A equação acima mostra que o resíduo, $e(\boldsymbol{s}_{ij})$, de uma observação espacial qualquer, $y(\boldsymbol{s}_{ij})$, localizada na categoria $j$, é dado pela diferença entre a média daquela categoria, $\bar{y}(\boldsymbol{s}_j)$, e o valor da respectiva observação.
+A equação acima mostra que o resíduo, $e(\boldsymbol{s}_{ik})$, de uma observação espacial qualquer, $y(\boldsymbol{s}_{ik})$, localizada na categoria $k$, é dado pela diferença entre o valor naquela observação e a média da categoria onde ela se encontra, $\bar{y}(\boldsymbol{s}_k)$.
 
 ```{r}
 pontos400in@data <- 
   pontos400in@data %>% 
   group_by(um) %>%
   mutate(
-    residuo = mean(areia_) - areia_)
+    residuo = areia_ - mean(areia_))
 ```
 
 Calculado os resíduos, vamos agora verificar sua distribuição espacial. Para isso usamos um gráfico de bolhas, o qual pode ser produzido usando a função `sp::bubble`. Um gráfico de bolha é uma forma de representação gráfica dos valores da variável de interesse em cada observação, onde o tamanho e cor do símbolo são proporcionais ao valor da variável de interesse. Na Figura \@ref(fig:bubble-residuo), as observações com resíduo negativo são indicadas em magenta, enquanto as observações em verde representam aquelas cujo resíduo é positivo. Quanto maior o diâmetro do círculo, maior é o resíduo em termos absolutos.
@@ -203,7 +203,11 @@ sp::bubble(pontos400in, 'residuo', do.sqrt = FALSE, main = "")
 # Modelo contínuo de variação espacial
 
 O processo gerador aleatório e espacialmente autocorrelacionado.
+
 Como quantificar a dependência espacial?
+
+$$\sigma^2 = \{y(\boldsymbol{s}_i) - \bar{y}(\boldsymbol{s})\}^2 + \{y(\boldsymbol{s}_j) - \bar{y}(\boldsymbol{s})\}^2$$
+
 
 ## Modelo contínuo: visão estocástica
 

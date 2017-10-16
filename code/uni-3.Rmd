@@ -12,6 +12,26 @@ lang: pt
 **Temas**: Modelo linear misto de variação espacial.
 </div>
 
+# Definição e propriedades
+
+Segundo o modelo linear misto de variação espacial, o valor de uma variável ambiental, $Y$, em um local qualquer no espaço, $\boldsymbol{s}$, é resultado da adição de efeitos fixos e efeitos aleatórios.
+
+$$Y(\boldsymbol{s}) = Z(\boldsymbol{s}) + \varepsilon(\boldsymbol{s}) = \boldsymbol{x}(\boldsymbol{s})^\text{T}\boldsymbol{\beta} + B(\boldsymbol{s}) + \varepsilon(\boldsymbol{s})$$
+
+Na equação acima, $Z(\boldsymbol{s}) = \boldsymbol{x}(\boldsymbol{s})^\text{T}\boldsymbol{\beta} + B(\boldsymbol{s})$ é o chamado sinal,
+enquanto $\varepsilon(\boldsymbol{s})$ é um resíduo (ou ruído) independente e identicamente distribuído (i.i.d.), possivelmente descrito
+por uma distribuição Gaussina de probabilidade. O sinal da variável ambiental, $Z(\boldsymbol{s})$, possui dois componentes. O primeiro,
+$\boldsymbol{x}(\boldsymbol{s})^\text{T}\boldsymbol{\beta}$ representa os efeitos fixos, ou seja, a tendência espacial de origem
+desterminística, especificamente, a relação de dependência (causa e efeito) entre as covariáveis ambientais, $\boldsymbol{x}$, e a
+variável ambiental, $Y$, onde $\boldsymbol{\beta}$ são os coeficientes da regressão linear, e $\text{T}$ denota transposição. O segundo
+componente do sinal da variável ambiental, $B(\boldsymbol{s})$, representa os efeitos aleatórios, ou seja, a parte da variação da variável
+ambiental explicada estocasticamente, nesse caso usando um campo Gaussiano estacionário e autocorrelacionado, cuja média é igual a zero.
+
+A partir do conjunto finito de observações espaciais da variável ambiental, 
+$\boldsymbol{y}^\text{T} = \{y(\boldsymbol{s}_1), y(\boldsymbol{s}_2), \ldots, y(\boldsymbol{s}_n)\}$, nossa inteção é estimar os coeficientes da regressão linear, $\boldsymbol{\beta}$, os parâmetros do variograma, 
+$\boldsymbol{\theta}^\text{T} = (\tau^2, \sigma^2, \alpha)$, a fim de que seja possível predizer 
+
+
 Configuração inicial.
 
 ```{r, message=FALSE, warning=FALSE}

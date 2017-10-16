@@ -34,11 +34,21 @@ $\boldsymbol{\theta}^\text{T} = (\tau^2, \alpha)$, $\sigma^2$ a fim de que seja 
 
 # Função de covariância Whittle-Matérn
 
+Um processo espacial Gaussiano é um tipo de processo que pode ser completamente especificado pela sua *função de média*, $\mu(\boldsymbol{s}) = \text{E}[Z(\boldsymbol{s})]$, e sua *função de covariância*, $\gamma(\boldsymbol{s}_i, \boldsymbol{s}_j) = \text{Cov}\{Z(\boldsymbol{s}_i), Z(\boldsymbol{s}_j)\}$. Esse processo Gaussiano será *estacionário* se $\mu(\boldsymbol{s}) = \mu$, ou seja, se a média for constante para todos os $\boldsymbol{s}$, e se $\gamma(\boldsymbol{s}_i, \boldsymbol{s}_j) = \gamma(u)$, onde $u = \boldsymbol{s}_i - \boldsymbol{s}_j$, ou seja, a covariância depende apenas do vetor de diferença entre os locais $\boldsymbol{s}_i$ e $\boldsymbol{s}_j$.
+
+A especificação da estrutura de covariância de um processo espacial autocorrelacionado influencia diretamente a suavidade da superfície gerada por esse processo. O parâmetro $\nu$ da função de covariância Whittle-Matérn, chamado de parâmetro de suavidade, confere à essa função grande flexibilidade para modelar processos espaciais autocorrelacionado. Quando $\nu$ é pequeno, ou seja, $\nu \to 0$, significa que o processo espacial é rugoso. Do contrário, quando $\nu$ é grande, ou seja, $\nu \to \infty$, então o processo espacial é suave. 
+
+$$\gamma(h) = \left\{2^{\nu-1} \Gamma(\nu)\right\}^{-1} (h/\alpha)^\nu K_\nu(h/\alpha)$$
+
+A flexibilidade da função de covariância Whittle-Matérn, conferida pelo seu parâmetro de suavidade, $\nu$, permite que ela seja considerada um generalização de um grande número de modelos teóricos do variograma.
+
+Se $\nu \to \infty$, então a função de  pode ser considerada equivalente à função de covariância Gaussiana. Quando $\nu \to 1$, ela corresponde à função de covariância de Whittle. Quando $\nu = 0.5$, então é o mesmo que a função exponencial.
+
 # Método da máxima verossimilhança restrita
 
-# Exercício
+$$L(\boldsymbol{\beta}, \sigma^2, \boldsymbol{\theta}, \boldsymbol{z} | \boldsymbol{y}) = - \frac{1}{2} \log(\det(\sigma^2\boldsymbol{I} + \boldsymbol{V}_{\boldsymbol{\theta}})) - \frac{1}{2}$$
 
-Configuração inicial.
+# Exercício
 
 ```{r, message=FALSE, warning=FALSE}
 # Pacotes
@@ -106,22 +116,30 @@ sp::spplot(
     lattice::xyplot(coord_y ~ coord_x, data = as.data.frame(pontos400in@coords), col = 'red', pch = 17))
 ```
 
+## Análise exploratória
+
 ```{r lm-fit}
 lm_fit <- lm(areia_ ~ um, pontos400in)
 summary(lm_fit)
 ```
 
+A Figura \@ref(fig:lm-residuos) mostra os resíduos da regressão linear ajustada aos dados do conteúdo de areia.
+
 ```{r lm-residuos, fig.asp=1}
 plot(lm_fit, which = 1)
 ```
 
+Conforme mostra a Figura \@ref(fig:vario-direction), os resíduos da regressão linear possuem dependência espacial. Partindo da primeira classe de distância de separação, a semivariância aumenta de maneira relativamente rápida e atinge certa estabilidade a partir de 1000-1500 m. Avaliada a evolução da semivariância nas diferentes direções, principalmente nas primeiras classes de distância de separação, não há evidência clara da existência de estruturas de autocorrelação espacial dependentes da direção. Assim, é possível assumir que o processo espacial é isotrópico (do contrário seria chamado anisotrópico).
+
 ```{r vario-direction, fig.asp=1, fig.cap='Variograma direcional dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo.'}
 residuals(lm_fit) %>% 
   georob::sample.variogram(
-    locations = pontos400in@coords, lag.dist.def = 100, max.lag = 2500,
+    locations = pontos400in@coords, lag.dist.def = 200, max.lag = 2500,
     xy.angle.def = c(0, 22.5, 67.5, 112.5, 157.5, 180)) %>% 
   plot(type = "b", ylab = 'Semivariância', xlab = 'Distância de separação (m)')
 ```
+
+Assumida a isotropia do processo espacial, podemos computar o semivariograma amostral omnidirecional (ou independente da direção). Em seguida, vamos ajustar ao variograma amostral um modelo exponencial do variograma. Para isso usamos o método dos quadrados mínimos não-lineares ponderados, sendo a ponderação definida conforme o método de Cressie (1993, sec. 2.6.2). O processo de estimativa dos parâmetros do modelo exponencial do variograma é conduzido via otimização usando a função `stats::optim(method = "BFGS")`. Os valores produzidos pelo otimizador a cada 10 iterações são impressos no console.
 
 ```{r, fig.asp=1, message=FALSE, warning=FALSE}
 vario <- 
@@ -131,15 +149,18 @@ vario <-
 vario_fit <- 
   georob::fit.variogram.model(
   vario, variogram.model = 'RMexp', param = c(variance = 35000, nugget = 5000, scale = 500), 
-  method = "BFGS")
+  weighting.method = "cressie", method = "BFGS")
 ```
 
-```{r, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.'}
+O ajuste do modelo exponencial ao variograma amostral dos resíduos do conteúdo de areia é mostrado na Figura \@ref(fig:vario-exp). Note como a curva ajustada passa pelo centro de massa dos doze pontos do variograma amostral, uma característica do método dos quadrados mínimos.
+
+```{r vario-exp, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.'}
 plot(vario, type = "b", xlab = 'Distância de separação (m)', ylab = 'Semivariância')
 lines(vario_fit, col = "red", lty = 'dashed')
 ```
 
+Os parâmetros ajustados do modelo exponencial do variograma são mostrados abaixo. Note que o otimizador precisou de `r vario_fit$iter[1]` iterações para convergir, ou seja, encontrar os valores ótimos -- ótimo condicional aos dados -- para o modelo exponencial. Um diferencial do pacote **georob** -- comparado ao pacote **gestat** -- é que o mesmo retorna, além dos parâmetros estimados, os limites inferior (`Lower`) e superior (`Upper`) de confiança dessas estimativas. Note como o intervalo de confiança da estimativa da variância residual (`nugget`), $\tau^2$.
+
 ```{r}
 summary(vario_fit)
 ```
-

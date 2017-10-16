@@ -88,8 +88,20 @@ for (i in 1:2) {
 }
 sp::spplot(
   pedologia25, col.regions = col_soil_um, alpha.regions = 0.3, colorkey = FALSE) +
-  as.layer(xyplot(y ~ x, data = as.data.frame(pts_random[[1]]@coords), col = 'red', pch = 17)) +
-  as.layer(xyplot(y ~ x, data = as.data.frame(pts_random[[2]]@coords), col = 'blue', pch = 17))
+  as.layer(xyplot(y ~ x, data = as.data.frame(pts_random[[1]]@coords), col = 'red', pch = 17, cex = 1.5)) +
+  as.layer(xyplot(y ~ x, data = as.data.frame(pts_random[[2]]@coords), col = 'blue', pch = 17, cex = 1.5))
+```
+
+```{r, eval=FALSE}
+prob <- rep(0.1, 10)
+x <- rnorm(10)
+mean(x)
+
+prob <- rnorm(10, 100, 2) 
+prob <- prob / sum(prob)
+sum(prob)
+
+sum(x * prob)
 ```
 
 ## Amostragem não-probabilística
@@ -120,7 +132,6 @@ pts_regular <- sp::spsample(pedologia25, n = 50, type = "regular", offset = c(0.
 sp::spplot(
   pedologia25, col.regions = col_soil_um, alpha.regions = 0.3, colorkey = FALSE) +
   as.layer(xyplot(x2 ~ x1, data = as.data.frame(pts_regular@coords), col = 'red', pch = 17))
-  
 ```
 
 ### Observações preferenciais
@@ -196,15 +207,19 @@ pontos400in@data <-
 
 Calculado os resíduos, vamos agora verificar sua distribuição espacial. Para isso usamos um gráfico de bolhas, o qual pode ser produzido usando a função `sp::bubble`. Um gráfico de bolha é uma forma de representação gráfica dos valores da variável de interesse em cada observação, onde o tamanho e cor do símbolo são proporcionais ao valor da variável de interesse. Na Figura \@ref(fig:bubble-residuo), as observações com resíduo negativo são indicadas em magenta, enquanto as observações em verde representam aquelas cujo resíduo é positivo. Quanto maior o diâmetro do círculo, maior é o resíduo em termos absolutos.
 
-```{r bubble-residuo, fig.cap='Gráfico de bolha dos resíduos da variável de interesse, calculados em função da média de cada categoria do mapa pedológico.'}
-sp::bubble(pontos400in, 'residuo', do.sqrt = FALSE, main = "")
+```{r bubble-residuo, fig.cap='Gráfico de bolha dos resíduos da variável de interesse, calculados em função da média de cada categoria do mapa pedológico.', fig.width=10, fig.height=10}
+sp::bubble(pontos400in, 'residuo', do.sqrt = TRUE, main = "")
 ```
 
 # Modelo contínuo de variação espacial: visão estocástica
 
 ## Processo aleatório espacialmente autocorrelacionado
 
-$Y$
+$$\LaTeX$$
+
+$$Y(\boldsymbol{s})$$
+
+$$y(\boldsymbol{s}_i)$$
 
 ## Medida da dependência espacial
 
@@ -224,10 +239,21 @@ Vamos lembrar como é calculada a variância dos dados no contexto não-espacial
 
 A Figura \@ref(fig:vario-nuvem) mostra a nuvem semivariográfica dos resíduos da variável de interesse calculados acima.
 
-```{r vario-nuvem, fig.cap='Nuvem semivariográfica.', fig.asp=1}
+```{r, fig.asp=1, fig.width=10, fig.height=10}
+variograma <- gstat::variogram(areia_ ~ 1, pontos400in, cloud = TRUE, cutoff = Inf)
+# mean(variograma$gamma); var(pontos400in$areia_)
+plot(variograma, ylab = "Semivariância", xlab = "Distância (m)", ylim = c(0, 400000)) +
+  layer(panel.abline(h = res_var, col = 'red', lty = 'dashed')) +
+  layer(panel.text(y = res_var, x = 1500, label = "Variância amostral", pos = 3))
+```
+
+
+```{r vario-nuvem, fig.cap='Nuvem semivariográfica.', fig.asp=1, fig.width=10, fig.height=10}
+# (n * n - 1) / 2
+# hist(pontos400in$residuo)
 variograma <- gstat::variogram(residuo ~ 1, pontos400in, cloud = TRUE, cutoff = Inf)
 res_var <- var(pontos400in$residuo)
-plot(variograma, ylab = "Semivariância", xlab = "Distância (m)") +
+plot(variograma, ylab = "Semivariância", xlab = "Distância (m)", ylim = c(0, 400000)) +
   layer(panel.abline(h = res_var, col = 'red', lty = 'dashed')) +
   layer(panel.text(y = res_var, x = 1500, label = "Variância amostral", pos = 3))
 ```
@@ -243,12 +269,12 @@ Parâmetros do semivariograma:
 ```{r vario-empirico, fig.asp=1}
 limites <- seq(0, 2500, length.out = 15)
 variograma <- gstat::variogram(residuo ~ 1, pontos400in, boundaries = limites)
-plot(variograma, ylab = "Semivariância", xlab = "Distância (m)") +
+plot(variograma, ylab = "Semivariância", xlab = "Distância (m)", pch = 20, cex = 1.5) +
   layer(panel.abline(
     h = c(res_var, min(variograma$gamma)), v = 1500, col = 'red', lty = 'dashed')) +
   layer(panel.text(
     x = c(600, 600, 1500), 
-    y = c(res_var, min(variograma$gamma), max(variograma$gamma) / 2), 
+    y = c(res_var, min(variograma$gamma), max(variograma$gamma) / 2), cex = 1.5,
     label = c("Patamar (Variância total)", "Pepita (Variância residual)", 'Alcance'), 
     pos = c(3, 3, 1), srt = c(0, 0, 90))) +
   
@@ -257,7 +283,7 @@ plot(variograma, ylab = "Semivariância", xlab = "Distância (m)") +
     y1 = c(res_var, min(variograma$gamma), 18000), length = 0.1, ends = 'both')) +
   
   layer(panel.text(
-    x = c(2270, 2270, 750, 0),
+    x = c(2270, 2270, 750, 0), cex = 1.5,
     y = c(min(variograma$gamma) + diff(range(variograma$gamma)) / 2, 
           min(variograma$gamma) - min(variograma$gamma) / 2, 18000, 2000), 
     label = c('Variância\nexplicada', 'Variância\ninexplicada', 'Correlação\nEspacial', 
@@ -271,17 +297,18 @@ Vamos conhecer três funções autorizadas clássicas que podem ser usadas para 
 * Exponencial (com patamar e alcance)
 * Gaussiana (com patamar e alcance)
 
-```{r vario-funcoes, fig.asp=1, fig.cap='Três funções autorizadas para modelar o semivariograma empírico.'}
+```{r vario-funcoes, fig.asp=1, fig.width=8, fig.height=8, fig.cap='Três funções autorizadas para modelar o semivariograma empírico.'}
 m_exp <- gstat::vgm(psill = 37000 - 8000, model = 'Exp', range = 300, nugget = 8000)
 m_gau <- gstat::vgm(psill = 37000 - 12000, model = 'Gau', range = 400, nugget = 12000)
 m_nug <- gstat::vgm(psill = 37000, model = 'Nug', range = 0, nugget = 0)
-plot(variograma, ylab = "Semivariância", xlab = "Distância (m)") +
+plot(variograma, m_exp, ylab = "Semivariância", xlab = "Distância (m)", pch = 20, cex = 1.5) +
   layer(panel.lines(
-    gstat::variogramLine(m_exp, dist_vector = seq(0, 2500, length.out = 1500)), col = "darkgreen")) +
+    gstat::variogramLine(
+      m_exp, dist_vector = seq(0, 2500, length.out = 1500)), col = "darkgreen", lwd = 2)) +
   layer(panel.lines(
-    gstat::variogramLine(m_gau, dist_vector = seq(0, 2500, length.out = 1500)), col = "orange")) +
+    gstat::variogramLine(m_gau, dist_vector = seq(0, 2500, length.out = 1500)), col = "orange", lwd = 2)) +
   layer(panel.lines(
-    gstat::variogramLine(m_nug, dist_vector = seq(0, 2500, length.out = 1500)), col = "purple")) +
+    gstat::variogramLine(m_nug, dist_vector = seq(0, 2500, length.out = 1500)), col = "purple", lwd = 2)) +
   layer(panel.text(
     x = rep(1000, 3), y = seq(10000, 15000, length.out = 3), c('Exponencial', 'Gaussiana','Puro ruído'),
     col = c('darkgreen', 'orange', 'purple'), pos = 4))
@@ -303,14 +330,14 @@ v <- gstat::gstat(formula = z ~ 1, dummy = TRUE, beta = 0, model = m_nug, nmax =
 simula$Nug <- predict(v, grid, nsim = 1, debug.level = 0)$sim1
 ```
 
-```{r simula, message=FALSE, warning=FALSE, fig.cap='Realização de três campos aleatórios definidos por funções gaussiana, exponencial e puro ruído.'}
+```{r simula, message=FALSE, warning=FALSE, fig.cap='Realização de três campos aleatórios definidos por funções gaussiana, exponencial e puro ruído.', fig.width=20}
 sp::gridded(simula) <- TRUE
 sp::spplot(simula)
 ```
 
 Vejamos outras funções existentes.
 
-```{r}
+```{r, fig.width=20}
 gstat::show.vgms(main = "Modelos do semivariograma", xlab = "Distância", ylab = "Semivariância")
 ```
 
@@ -318,21 +345,30 @@ Ajuste do modelo ao variograma empírico
 
 Figura \@ref(fig:vario-ajuste)
 
+```{r}
+m_exp
+```
+
+
 ```{r vario-ajuste, fig.asp=1, fig.cap='Ajuste da função exponencial ao semivariograma empírico.'}
 m_exp <- gstat::fit.variogram(variograma, m_exp)
+```
+
+```{r, fig.asp=1}
 plot(variograma, m_exp, col.line = 'red', xlab = 'Distância (m)', ylab = 'Semivariância')
 ```
 
+
 Predições espaciais
 
-```{r}
-mapa_exp <- gstat::krige(residuo ~ 1, pontos400in, grid, m_exp, debug.level = 0)
+```{r, fig.width=15}
+mapa_exp <- gstat::krige(residuo ~ 1, pontos400in, grid, m_exp, debug.level = 1)
 sp::gridded(mapa_exp) <- TRUE
 sp::spplot(mapa_exp, 1, col.regions = col_soil_var)
 ```
 
 
-```{r}
+```{r, fig.width=15}
 mapa_exp$var1.var <- sqrt(mapa_exp$var1.var)
 sp::spplot(mapa_exp, 2, col.regions = col_soil_var)
 ```

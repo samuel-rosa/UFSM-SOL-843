@@ -12,7 +12,6 @@ lang: pt
 **Temas**: Modelo linear misto de variação espacial.
 </div>
 
-
 Configuração inicial.
 
 ```{r, message=FALSE, warning=FALSE}
@@ -80,3 +79,41 @@ sp::spplot(
   latticeExtra::as.layer(
     lattice::xyplot(coord_y ~ coord_x, data = as.data.frame(pontos400in@coords), col = 'red', pch = 17))
 ```
+
+```{r lm-fit}
+lm_fit <- lm(areia_ ~ um, pontos400in)
+summary(lm_fit)
+```
+
+```{r lm-residuos, fig.asp=1}
+plot(lm_fit, which = 1)
+```
+
+```{r vario-direction, fig.asp=1, fig.cap='Variograma direcional dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo.'}
+residuals(lm_fit) %>% 
+  georob::sample.variogram(
+    locations = pontos400in@coords, lag.dist.def = 100, max.lag = 2500,
+    xy.angle.def = c(0, 22.5, 67.5, 112.5, 157.5, 180)) %>% 
+  plot(type = "b", ylab = 'Semivariância', xlab = 'Distância de separação (m)')
+```
+
+```{r, fig.asp=1, message=FALSE, warning=FALSE}
+vario <- 
+  residuals(lm_fit) %>% 
+  georob::sample.variogram(
+    locations = pontos400in@coords, lag.dist.def = 200, max.lag = 2500)
+vario_fit <- 
+  georob::fit.variogram.model(
+  vario, variogram.model = 'RMexp', param = c(variance = 35000, nugget = 5000, scale = 500), 
+  method = "BFGS")
+```
+
+```{r, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.'}
+plot(vario, type = "b", xlab = 'Distância de separação (m)', ylab = 'Semivariância')
+lines(vario_fit, col = "red", lty = 'dashed')
+```
+
+```{r}
+summary(vario_fit)
+```
+

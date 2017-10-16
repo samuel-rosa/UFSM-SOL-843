@@ -1,0 +1,82 @@
+---
+title: "Unidade III -- Modelo Linear Misto de Variação Espacial"
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
+output: 
+  bookdown::html_document2:
+    css: styles.css
+lang: pt
+---
+
+<div id="summary">
+**Temas**: Modelo linear misto de variação espacial.
+</div>
+
+
+Configuração inicial.
+
+```{r, message=FALSE, warning=FALSE}
+# Pacotes
+library(magrittr)
+library(dplyr)
+library(glue)
+library(lattice)
+library(latticeExtra)
+
+# Sistemas de referência de coordenadas (Fonte: http://spatialreference.org/ref/epsg/)
+wgs84utm22s <- sp::CRS('+proj=utm +zone=22 +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
+sirgas2000 <- sp::CRS('+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs')
+
+# Rampas de cores
+col_soil_var <- topo.colors(100)
+```
+
+Vamos descarregar os arquivos do mapa pedológico para um diretório local. O nome desse diretório é definido abaixo pelo objeto `data_folder`. Altere o caminho para esse diretório conforme necessário. Caso você já tenha descarregado os arquivos do mapa pedológico, então `data_folder` deve ser o caminho para o diretório onde esses arquivos se encontram.
+
+```{r}
+data_folder <- '../data/'
+ext <- c('dbf', 'prj', 'shp', 'shx')
+files <- glue('pedologia25.{ext}')
+download <- !all(files %in% list.files(data_folder)) 
+if (download) {
+  url <- 'https://github.com/samuel-rosa/UFSM-SOL-843/tree/master/data/'
+  url <- glue('{url}{files}')
+  destfile <- glue('{data_folder}{files}')
+  for (i in 1:length(files)) {
+    download.file(url = url[i], destfile = destfile[i])
+  }
+}
+```
+
+Agora você já pode carregar o mapa pedológico para o seu ambiente de trabalho. Para isso, use a função `raster::shapefile`. Note que se o sistema operacional do seu computador for o MS Windows, pode ser necessário incluir o o argumento `encoding = 'UTF-8'` na função `raster::shapefile` para garantir que os carácteres especiais usados nos nomes das unidades de mapeamento seja reconhecidos. Verifique se a estrutura de `pedologia25` está conforme o esperado para um objeto do tipo `SpatialPolygonsDataFrame`. Note que a função `sp::spTransform` é usada para projetar as coordenadas original no plano cartesiano (UTM).
+
+```{r}
+pedologia25 <- 
+  glue('{data_folder}pedologia25.shp') %>% 
+  raster::shapefile(stringsAsFactors = TRUE) %>% 
+  sp::spTransform(wgs84utm22s)
+col_soil_um <- terrain.colors(nlevels(pedologia25$um))
+str(pedologia25, 2)
+```
+
+```{r, message=FALSE, warning=FALSE}
+pontos400_o <- febr::observations('ctb0003', which.cols = 'all', progress = FALSE)
+pontos400_l <- febr::layers('ctb0003', which.cols = 'all', missing.data = 'keep', progress = FALSE)
+id <- c('dataset_id', 'observacao_id')
+pontos400 <- 
+  merge(pontos400_o, pontos400_l, by.x = id, by.y = id) %>% 
+  select(observacao_id, coord_x, coord_y, taxon_sibcs_2009, ca_kcl_aas, argila_, areia_)
+rm(pontos400_l, pontos400_o)
+sp::coordinates(pontos400) <- ~ coord_x + coord_y
+sp::proj4string(pontos400) <- sirgas2000
+pontos400 <- sp::spTransform(pontos400, wgs84utm22s)
+pontos400$um <- sp::over(x = pontos400, y = pedologia25) %>% unlist()
+pontos400in <- pontos400[!is.na(pontos400$um), ]
+```
+
+```{r pts400-in, fig.cap='Distribuição espacial das 376 observações localizadas dentro dos limites da área de estudo.'}
+sp::spplot(
+  pedologia25, col.regions = col_soil_um, alpha.regions = 0.3, colorkey = FALSE) +
+  latticeExtra::as.layer(
+    lattice::xyplot(coord_y ~ coord_x, data = as.data.frame(pontos400in@coords), col = 'red', pch = 17))
+```

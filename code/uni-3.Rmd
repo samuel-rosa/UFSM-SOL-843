@@ -25,12 +25,18 @@ $\boldsymbol{x}(\boldsymbol{s})^\text{T}\boldsymbol{\beta}$ representa os efeito
 desterminística, especificamente, a relação de dependência (causa e efeito) entre as covariáveis ambientais, $\boldsymbol{x}$, e a
 variável ambiental, $Y$, onde $\boldsymbol{\beta}$ são os coeficientes da regressão linear, e $\text{T}$ denota transposição. O segundo
 componente do sinal da variável ambiental, $B(\boldsymbol{s})$, representa os efeitos aleatórios, ou seja, a parte da variação da variável
-ambiental explicada estocasticamente, nesse caso usando um campo Gaussiano estacionário e autocorrelacionado, cuja média é igual a zero.
+ambiental explicada estocasticamente, nesse caso usando um campo Gaussiano estacionário e autocorrelacionado não-observável (processo ou variável latente), cuja média é igual a zero.
 
-A partir do conjunto finito de observações espaciais da variável ambiental, 
-$\boldsymbol{y}^\text{T} = \{y(\boldsymbol{s}_1), y(\boldsymbol{s}_2), \ldots, y(\boldsymbol{s}_n)\}$, nossa inteção é estimar os coeficientes da regressão linear, $\boldsymbol{\beta}$, os parâmetros do variograma, 
-$\boldsymbol{\theta}^\text{T} = (\tau^2, \sigma^2, \alpha)$, a fim de que seja possível predizer 
+A partir do conjunto finito $n$ de observações espaciais da variável ambiental, 
+$\boldsymbol{y}^\text{T} = \{y(\boldsymbol{s}_1), y(\boldsymbol{s}_2), \ldots, y(\boldsymbol{s}_n)\}$, nossa inteção é estimar os coeficientes da regressão linear, $\boldsymbol{\beta}$, os parâmetros da função de covariância (ou variograma), 
+$\boldsymbol{\theta}^\text{T} = (\tau^2, \alpha)$, $\sigma^2$ a fim de que seja possível predizer 
 
+
+# Função de covariância Whittle-Matérn
+
+# Método da máxima verossimilhança restrita
+
+# Exercício
 
 Configuração inicial.
 

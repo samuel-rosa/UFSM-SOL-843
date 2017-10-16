@@ -164,3 +164,14 @@ Os parâmetros ajustados do modelo exponencial do variograma são mostrados abai
 ```{r}
 summary(vario_fit)
 ```
+
+## (RE)ML Gaussiano
+
+```{r}
+fit_reml <- georob::georob(
+  areia_ ~ um, pontos400in, locations = ~ coord_x + coord_y, variogram.model = 'RMexp', 
+  param = c(variance = 35000, nugget = 5000, scale = 500), tuning.psi = 1000,
+  control = georob::control.georob(initial.fixef = 'lm'))
+summary(fit_reml)
+```
+

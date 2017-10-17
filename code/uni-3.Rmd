@@ -38,33 +38,50 @@ $$\text{E}[\boldsymbol{B}\,\boldsymbol{B}^\text{T}] = \boldsymbol{\Gamma}_\theta
 
 Na equação acima, $\sigma_n^2$ é a variância devida à variação espacial de micro-escala, aparentemente não-correlacionada, em $B(\boldsymbol{s})$, que não pode ser resolvida com o delineamento amostral escolhido. Enquanto isso, $\sigma^2$ é a variância da variação autocorrelacionada de $B(\boldsymbol{s})$ que foi capturada pelo conjunto de observações, sendo $\sigma_Z^2 = \sigma_n^2 + \sigma^2$ definida como a variância do sinal, e $\xi = \sigma^2/\sigma_B^2$. Para que seja possível estimar ambos $\sigma_n^2$ e $\tau^2$, ao invés de apenas a sua soma, é preciso ter medidas replicadas para pelo menos algumas das observações $\boldsymbol{s}_i$.
 
-O parâmetro $\alpha$ acima representa o alcance. Enquanto isso, $\boldsymbol{\theta}$ é um vetor de todos os parâmetros do variograma, exceto $\tau^2$. 
+$\boldsymbol{\theta}$ é um vetor de todos os parâmetros do variograma, exceto $\tau^2$. 
 
-## A estimação
+# Função de covariância Whittle-Matérn
+
+Pela 1ª Lei da Geografia, sabemos que todos os indivíduos de uma população são parecidos entre si, mas que os indivíduos mais próximos se parecem mais uns com os outros do que os indivíduos mais distantes. Assim, o comportamento empírico mais comumumente observado para uma estrutura de covariância espacial estacionária é aquele em que a correlação entre o sinal em dois locais, $Z(\boldsymbol{s}_i)$ e $Z(\boldsymbol{s}_j)$, diminui à medida que a distância de separação entre esses dois locais, $h = ||\boldsymbol{s}_i - \boldsymbol{s}_j||$, aumenta.
+
+Quando a correlação espacial de $Z$ reduz rapidamente com o aumento de $h$, então diz-se que o processo espacial é áspero ou rugoso. Nesse caso, observa-se que $Z$ muda rapidamente, ou mesmo quase abruptamente, no espaço. Do contrário, quando a correlação espacial se mantém mesmo após grandes distâncias de separação, o que é evidenciado pela pequena taxa de mudança em $Z$ no espaço, diz-se que o processo é liso ou suave.
+
+Uma das funções de covariância mais utilizadas para modelar esse tipo de comportamento empírico é a função de Whittle-Matérn. O principal diferencial dessa função em relação às demais é que a mesma possui um parâmetro extra $\nu$ chamado de parâmetro de suavidade (alguns autores denotam esse parâmetro por $\kappa$). Quando $\nu$ é pequeno, ou seja, $\nu \to 0$, significa que o processo espacial é mais rugoso. Do contrário, quando $\nu$ é grande, ou seja, $\nu \to \infty$, então o processo espacial é mais suave.
+
+A função de covariância de Whittle-Matérn é dada por
+
+$$\rho(h) = \frac{1}{2^{\nu-1} \varGamma(\nu)}  \left(\frac{h}{\alpha}\right)^\nu K_\nu\left(\frac{h}{\alpha}\right)$$
+
+onde $K_\nu(\cdot)$ denota a função de Bessel modificada de segundo tipo de ordem $\nu$ e $\varGamma$ é a função gama. O parâmetro $\alpha > 0$, também conhecido como alcance ou parâmetro de distância, é aquele que determina a taxa com que a autocorrelação espacial diminui à medida que aumenta a distância de separação $h$. Assim, combinados os parâmetros $\nu$ e $\alpha$, a função de covariância de Whittle-Matérn consegue adorar uma grande variedade de formas, o que faz com que ela seja considerada um generalização de um grande número de modelos teóricos do variograma (\@ref(fig:whittle-matern)). Por exemplo, se $\nu \to \infty$, então a função de pode ser considerada equivalente à função de covariância Gaussiana. Quando $\nu \to 1$, ela corresponde à função de covariância de Whittle. Quando $\nu = 0.5$, então é o mesmo que a função exponencial. Se $\alpha \to \infty$ e $\nu > 0$ ou $\nu \to 0$, então ela aproxima-se das funções potência e logarítmica, respectivamente.
+
+```{r whittle-matern, fig.asp=1, fig.cap='Curvas da função de covariância de Whittle-Matérn para valores do parâmetro de suavidade entre $\nu = 0.1$ e $\nu = 8$, e valores constantes dos parâmetros de distância, $\alpha = 0.20$, e variância, $\sigma^2 = 1$.'}
+h <- seq(0, 1, 0.01)
+alpha <- 0.20
+nu <- c(0.1, 0.2, 0.5, 1, 2, 4, 8)
+gamma <- 1 - sapply(nu, function (x) geoR::matern(u = h, phi = alpha, kappa = x))
+plot(gamma, type = 'n', xlim = range(h), xlab = 'Distância de separação', ylab = 'Semivariância')
+for (i in 1:ncol(gamma)) {
+  lines(x = h, y = gamma[, i])
+  text(x = h[25], y = gamma[25, i], labels = nu[i], pos = 1)
+}
+```
+
+
+
+
+# Método da máxima verossimilhança (restrita)
 
 A partir do conjunto finito $n$ de observações espaciais da variável ambiental, 
 $\boldsymbol{y}^\text{T} = \{y(\boldsymbol{s}_1), y(\boldsymbol{s}_2), \ldots, y(\boldsymbol{s}_n)\}$, nossa inteção é estimar os coeficientes da regressão linear, $\boldsymbol{\beta}$, os parâmetros da função de covariância (ou variograma), 
 $\boldsymbol{\theta}^\text{T} = (\tau^2, \alpha)$, $\sigma^2$ a fim de que seja possível predizer 
 
 
-# Função de covariância Whittle-Matérn
 
-Um processo espacial Gaussiano é um tipo de processo que pode ser completamente especificado pela sua *função de média*, $\mu(\boldsymbol{s}) = \text{E}[Z(\boldsymbol{s})]$, e sua *função de covariância*, $\gamma(\boldsymbol{s}_i, \boldsymbol{s}_j) = \text{Cov}\{Z(\boldsymbol{s}_i), Z(\boldsymbol{s}_j)\}$. Esse processo Gaussiano será *estacionário* se $\mu(\boldsymbol{s}) = \mu$, ou seja, se a média for constante para todos os $\boldsymbol{s}$, e se $\gamma(\boldsymbol{s}_i, \boldsymbol{s}_j) = \gamma(h)$, onde $h = \boldsymbol{s}_i - \boldsymbol{s}_j$, ou seja, a covariância depende apenas do vetor de diferença entre os locais $\boldsymbol{s}_i$ e $\boldsymbol{s}_j$.
+Um dos problemas do método da MV(R) é que a solução encontrada pelos algorítmos otimizadores pode ser multimodal. Isso significa que mais de um conjunto de valores dos parâmetros do modelo podem retornar valores muito similares da log-verossimilhança. A maioria desses conjuntos consistem em máximos locais, quando o objetivo é encontrar o máximo global. Para evitar esse tipo de problema é preciso fornecer uma boa estimativa inicial dos parâmetros para o otimizador, o que requer um bom conhecimento da estrutura dos dados e do processo estocástico subjascente.
 
-A especificação da estrutura de covariância de um processo espacial autocorrelacionado influencia diretamente a suavidade da superfície gerada por esse processo. O parâmetro $\nu$ da função de covariância Whittle-Matérn, chamado de parâmetro de suavidade, confere à essa função grande flexibilidade para modelar processos espaciais autocorrelacionado. Quando $\nu$ é pequeno, ou seja, $\nu \to 0$, significa que o processo espacial é rugoso. Do contrário, quando $\nu$ é grande, ou seja, $\nu \to \infty$, então o processo espacial é suave. 
+Contudo, mesmo fornecendo uma boa estimativa inicial, não há garantia de que os valores retornados pelo máximo global façam qualquer sentido, significando que não sejam exatamente ótimos. Mais uma vez, identificar isso requer um bom conhecimento da estrutura dos dados e do processo estocástico subjascente. A solução mais comumente adotada aqui é a avaliação de uma perfil da da função logarítmica da verossimilhança. 
 
-$$\rho(h) = \frac{1}{2^{\nu-1} \Gamma(\nu)}  \left(\frac{h}{\alpha}\right)^\nu K_\nu\left(\frac{h}{\alpha}\right)$$
-
-A flexibilidade da função de covariância Whittle-Matérn, conferida pelo seu parâmetro de suavidade, $\nu$, permite que ela seja considerada um generalização de um grande número de modelos teóricos do variograma.
-
-Se $\nu \to \infty$, então a função de  pode ser considerada equivalente à função de covariância Gaussiana. Quando $\nu \to 1$, ela corresponde à função de covariância de Whittle. Quando $\nu = 0.5$, então é o mesmo que a função exponencial.
-
-# Método da máxima verossimilhança restrita
-
-<!-- $$L(\boldsymbol{\beta}, \sigma^2, \boldsymbol{\theta}, \boldsymbol{z} | \boldsymbol{y}) = - \frac{1}{2} \log(\det(\sigma^2\boldsymbol{I} + \boldsymbol{V}_{\boldsymbol{\theta}})) - \frac{1}{2}$$ -->
-
-$$-\log(\det(\tau^2 \boldsymbol{I} + \boldsymbol{\Gamma}_\theta)) - \sum_{i=1}^n \left(\frac{y_i - \boldsymbol{x}(\boldsymbol{s}_i)^\mathrm{T}\boldsymbol{\beta} - B(\boldsymbol{s}_i)}{\tau}\right)^2 - \boldsymbol{B}^{\mathrm{T}}\boldsymbol{\Gamma}^{-1}_\theta\boldsymbol{B}$$
-
+## Perfil
 
 # Exercício
 
@@ -265,4 +282,3 @@ lines(vario_fit, col = "magenta")
 lines(reml_fit, col = "navyblue")
 lines(reml_fit_error, col = "orange")
 ```
-

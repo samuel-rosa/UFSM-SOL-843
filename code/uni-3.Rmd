@@ -9,7 +9,7 @@ lang: pt
 ---
 
 ```{r, eval=FALSE, echo=FALSE}
-rmarkdown::render('uni-3.Rmd', output_dir = "../docs")
+rmarkdown::render('uni-3.Rmd', encoding = 'UTF-8', output_dir = "../docs")
 ```
 
 <div id="summary">

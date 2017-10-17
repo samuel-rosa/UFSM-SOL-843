@@ -1,7 +1,5 @@
 ---
 title: "Unidade III -- Modelo Linear Misto de Variação Espacial"
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
 output: 
   bookdown::html_document2:
     css: styles.css

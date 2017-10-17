@@ -224,3 +224,28 @@ plot(nugget ~ scale, reml_fit_prof, ylim = c(0, max(nugget)), type = "l")
 par(op)
 ```
 
+Mesmo que nós não tenhamos observações replicadas de localizações idênticas, é possível fazer suposições sobre a natureza da variação espacialmente não-correlacionada (erro de medida *versus* variação espacial de pequena escala) No pacote **georob**, a variãncia devida aos erros de medida é modelada pelo parâmetro `nugget`. Enquanto isso, a variância devida à variação espacial em pequena escala processo do sinal é modelada pelo parâmetro `snugget`.
+
+Se nós soubermos a variância do erro de medida *a priori*, então é possível fazer o seguinte. Primeiro, procedemos na análise dos dados conforme feito até aqui. A estimativa do `nugget` será, nesse caso, a soma do `nugget` e `snugget`, o último tendo sido mantido fixo (`snugget = 0`) durante a modelagem. Nesse caso, `nugget` é `r vario_fit$variogram.object[[1]]$param[['nugget']]`. Vamos supor que sabemos *a priori* que a variância do erro de medida é igual à 1/4 desse valor, ou seja, `r vario_fit$variogram.object[[1]]$param[['nugget']] * 0.25`. Assim, a variância do componente espacialmente não-correlacionado do sinal será igual a `r vario_fit$variogram.object[[1]]$param[['nugget']] * 0.75`.
+
+Feitas essas suposições, precisamos ajustar o modelo novamente, agora mantendo ambos `nugget` e `snugget` fixos.
+
+```{r}
+reml_fit_error <- georob::georob(
+  areia_ ~ um + geo, pontos400in, locations = ~ coord_x + coord_y, variogram.model = 'RMexp', 
+  param = c(variance = vario_fit$variogram.object[[1]]$param[['variance']], 
+            nugget = vario_fit$variogram.object[[1]]$param[['nugget']] * 0.25,
+            snugget = vario_fit$variogram.object[[1]]$param[['nugget']] * 0.75,
+            scale = vario_fit$variogram.object[[1]]$param[['scale']]),
+  fit.param = georob::default.fit.param(nugget = FALSE, snugget = FALSE),
+  tuning.psi = 1000, control = georob::control.georob(initial.fixef = 'lm'))
+summary(reml_fit_error)
+```
+
+
+```{r vario-reml, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.'}
+plot(vario, type = "b", xlab = 'Distância de separação (m)', ylab = 'Semivariância', lty = 'dashed')
+lines(vario_fit, col = "magenta")
+lines(reml_fit, col = "navyblue")
+lines(reml_fit_error, col = "orange")
+```

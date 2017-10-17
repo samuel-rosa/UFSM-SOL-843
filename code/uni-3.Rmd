@@ -16,18 +16,19 @@ rmarkdown::render('uni-3.Rmd', encoding = 'UTF-8', output_dir = "../docs")
 
 # Definição e propriedades
 
-Segundo o modelo linear misto de variação espacial, o valor de uma variável ambiental, $Y$, em um local qualquer no espaço, $\boldsymbol{s}$, é resultado da adição de efeitos fixos e efeitos aleatórios.
+## Os dados
 
-$$Y(\boldsymbol{s}) = Z(\boldsymbol{s}) + \varepsilon(\boldsymbol{s}) = \boldsymbol{x}(\boldsymbol{s})^\text{T}\boldsymbol{\beta} + B(\boldsymbol{s}) + \varepsilon(\boldsymbol{s})$$
+Dados geoestatísticos são dados observados de uma variável ambiental, $y(\boldsymbol{s}_i)$, em um conjunto finito de locais, $\boldsymbol{s}_i$, $i = 1, 2, \ldots, n$, no interior de um determinado domínio, $G \in R^d$, $d \in (1, 2, 3)$, juntamente com dados de covariáveis ambientais espacialmente exaustivas, $\boldsymbol{x}_j(\boldsymbol{s}_i)$, $j = 1, 2, \ldots, p$.
 
-Na equação acima, $Z(\boldsymbol{s}) = \boldsymbol{x}(\boldsymbol{s})^\text{T}\boldsymbol{\beta} + B(\boldsymbol{s})$ é o chamado sinal,
-enquanto $\varepsilon(\boldsymbol{s})$ é um resíduo (ou ruído) independente e identicamente distribuído (i.i.d.), possivelmente descrito
-por uma distribuição Gaussina de probabilidade. O sinal da variável ambiental, $Z(\boldsymbol{s})$, possui dois componentes. O primeiro,
-$\boldsymbol{x}(\boldsymbol{s})^\text{T}\boldsymbol{\beta}$ representa os efeitos fixos, ou seja, a tendência espacial de origem
-desterminística, especificamente, a relação de dependência (causa e efeito) entre as covariáveis ambientais, $\boldsymbol{x}$, e a
-variável ambiental, $Y$, onde $\boldsymbol{\beta}$ são os coeficientes da regressão linear, e $\text{T}$ denota transposição. O segundo
-componente do sinal da variável ambiental, $B(\boldsymbol{s})$, representa os efeitos aleatórios, ou seja, a parte da variação da variável
-ambiental explicada estocasticamente, nesse caso usando um campo Gaussiano estacionário e autocorrelacionado não-observável (processo ou variável latente), cuja média é igual a zero.
+## O modelo
+
+O modelo usado para os dados geoestatísticos $y(\boldsymbol{s}_i)$ é o modelo linear misto de variação espacial:
+
+$$Y(\boldsymbol{s}_i) = Z(\boldsymbol{s}_i) + \varepsilon(\boldsymbol{s}_i) = \boldsymbol{x}(\boldsymbol{s}_i)^\text{T}\boldsymbol{\beta} + B(\boldsymbol{s}_i) + \varepsilon(\boldsymbol{s}_i)$$
+
+Segundo o modelo linear misto de variação espacial, os dados da variável ambiental é resultado da soma de efeitos fixos e efeitos aleatórios. Na equação acima, $Z(\boldsymbol{s}_i)$ é o chamado *sinal*. O sinal possui dois componentes. O primeiro, $\boldsymbol{x}(\boldsymbol{s}_i)^\text{T}\boldsymbol{\beta}$ representa os efeitos fixos, ou seja, a tendência espacial de origem desterminística, especificamente, a relação de dependência (causa e efeito) entre as covariáveis ambientais e a variável ambiental. Aqui $\boldsymbol{\beta}$ são os coeficientes da regressão linear ($\text{T}$ denota transposição). O segundo componente do sinal da variável ambiental, $B(\boldsymbol{s}_i)$, representa uma parte dos efeitos aleatórios, especificamente, um campo aleatório Gaussiano estacionário não-observável cuja média é igual a zero (variável latente). Por fim, $\varepsilon(\boldsymbol{s}_i)$ é um resíduo (ou *ruído*) independente e identicamente distribuído (*i.i.d.*), descrito por uma distribuição Gaussina de probabilidade, cujo parâmetro de escala é $\tau$. Tradicionalmente, $\tau^2$ é chamado de efeito pepita.
+
+## A estimação
 
 A partir do conjunto finito $n$ de observações espaciais da variável ambiental, 
 $\boldsymbol{y}^\text{T} = \{y(\boldsymbol{s}_1), y(\boldsymbol{s}_2), \ldots, y(\boldsymbol{s}_n)\}$, nossa inteção é estimar os coeficientes da regressão linear, $\boldsymbol{\beta}$, os parâmetros da função de covariância (ou variograma), 
@@ -36,11 +37,11 @@ $\boldsymbol{\theta}^\text{T} = (\tau^2, \alpha)$, $\sigma^2$ a fim de que seja 
 
 # Função de covariância Whittle-Matérn
 
-Um processo espacial Gaussiano é um tipo de processo que pode ser completamente especificado pela sua *função de média*, $\mu(\boldsymbol{s}) = \text{E}[Z(\boldsymbol{s})]$, e sua *função de covariância*, $\gamma(\boldsymbol{s}_i, \boldsymbol{s}_j) = \text{Cov}\{Z(\boldsymbol{s}_i), Z(\boldsymbol{s}_j)\}$. Esse processo Gaussiano será *estacionário* se $\mu(\boldsymbol{s}) = \mu$, ou seja, se a média for constante para todos os $\boldsymbol{s}$, e se $\gamma(\boldsymbol{s}_i, \boldsymbol{s}_j) = \gamma(u)$, onde $u = \boldsymbol{s}_i - \boldsymbol{s}_j$, ou seja, a covariância depende apenas do vetor de diferença entre os locais $\boldsymbol{s}_i$ e $\boldsymbol{s}_j$.
+Um processo espacial Gaussiano é um tipo de processo que pode ser completamente especificado pela sua *função de média*, $\mu(\boldsymbol{s}) = \text{E}[Z(\boldsymbol{s})]$, e sua *função de covariância*, $\gamma(\boldsymbol{s}_i, \boldsymbol{s}_j) = \text{Cov}\{Z(\boldsymbol{s}_i), Z(\boldsymbol{s}_j)\}$. Esse processo Gaussiano será *estacionário* se $\mu(\boldsymbol{s}) = \mu$, ou seja, se a média for constante para todos os $\boldsymbol{s}$, e se $\gamma(\boldsymbol{s}_i, \boldsymbol{s}_j) = \gamma(h)$, onde $h = \boldsymbol{s}_i - \boldsymbol{s}_j$, ou seja, a covariância depende apenas do vetor de diferença entre os locais $\boldsymbol{s}_i$ e $\boldsymbol{s}_j$.
 
 A especificação da estrutura de covariância de um processo espacial autocorrelacionado influencia diretamente a suavidade da superfície gerada por esse processo. O parâmetro $\nu$ da função de covariância Whittle-Matérn, chamado de parâmetro de suavidade, confere à essa função grande flexibilidade para modelar processos espaciais autocorrelacionado. Quando $\nu$ é pequeno, ou seja, $\nu \to 0$, significa que o processo espacial é rugoso. Do contrário, quando $\nu$ é grande, ou seja, $\nu \to \infty$, então o processo espacial é suave. 
 
-$$\gamma(h) = \left\{2^{\nu-1} \Gamma(\nu)\right\}^{-1} (h/\alpha)^\nu K_\nu(h/\alpha)$$
+$$\rho(h) = \frac{1}{2^{\nu-1} \Gamma(\nu)}  \left(\frac{h}{\alpha}\right)^\nu K_\nu\left(\frac{h}{\alpha}\right)$$
 
 A flexibilidade da função de covariância Whittle-Matérn, conferida pelo seu parâmetro de suavidade, $\nu$, permite que ela seja considerada um generalização de um grande número de modelos teóricos do variograma.
 
@@ -48,7 +49,10 @@ Se $\nu \to \infty$, então a função de  pode ser considerada equivalente à f
 
 # Método da máxima verossimilhança restrita
 
-$$L(\boldsymbol{\beta}, \sigma^2, \boldsymbol{\theta}, \boldsymbol{z} | \boldsymbol{y}) = - \frac{1}{2} \log(\det(\sigma^2\boldsymbol{I} + \boldsymbol{V}_{\boldsymbol{\theta}})) - \frac{1}{2}$$
+<!-- $$L(\boldsymbol{\beta}, \sigma^2, \boldsymbol{\theta}, \boldsymbol{z} | \boldsymbol{y}) = - \frac{1}{2} \log(\det(\sigma^2\boldsymbol{I} + \boldsymbol{V}_{\boldsymbol{\theta}})) - \frac{1}{2}$$ -->
+
+$$-\log(\det(\tau^2 \boldsymbol{I} + \boldsymbol{\Gamma}_\theta)) - \sum_{i=1}^n \left(\frac{y_i - \boldsymbol{x}(\boldsymbol{s}_i)^\mathrm{T}\boldsymbol{\beta} - B(\boldsymbol{s}_i)}{\tau}\right)^2 - \boldsymbol{B}^{\mathrm{T}}\boldsymbol{\Gamma}^{-1}_\theta\boldsymbol{B}$$
+
 
 # Exercício
 
@@ -243,7 +247,7 @@ summary(reml_fit_error)
 ```
 
 
-```{r vario-reml, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.'}
+```{r, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.'}
 plot(vario, type = "b", xlab = 'Distância de separação (m)', ylab = 'Semivariância', lty = 'dashed')
 lines(vario_fit, col = "magenta")
 lines(reml_fit, col = "navyblue")

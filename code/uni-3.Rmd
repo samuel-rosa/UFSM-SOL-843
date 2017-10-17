@@ -12,7 +12,7 @@ rmarkdown::render('uni-3.Rmd', encoding = 'UTF-8', output_dir = "../docs")
 ```
 
 <div id="summary">
-**Temas**: Modelo linear misto de variação espacial.
+**Temas**: Definição de dado geoestatístico. Especificação do modelo linear misto de variação espacial. Generalização de modelos do variograma. A função de covariância Whittle-Matérn. Estimativa de parâmetros. O método da máxima verossimilhança (MV) e da máxima verossimilhança restrita (MVR). 
 </div>
 
 # Definição e propriedades
@@ -23,11 +23,11 @@ Dados geoestatísticos são dados observados de uma variável ambiental, $y(\bol
 
 ## O modelo
 
-O modelo usado para os dados geoestatísticos $y(\boldsymbol{s}_i)$ é o modelo linear misto de variação espacial. Segundo esse modelo, o valor observado da variável ambiental em um determinado local é resultado da soma de efeitos fixos e efeitos aleatórios.
+O modelo usado para os dados geoestatísticos $y(\boldsymbol{s}_i)$ é o modelo linear misto de variação espacial. Segundo esse modelo, os dados geoestatísticos são uma realização de um campo aleatório $Y(\boldsymbol{s}_i)$ que podem ser descritos como a combinação aditiva de efeitos fixos, efeitos aleatórios e erro aleatório independente. Esse modelo é denotado por
 
 $$Y(\boldsymbol{s}_i) = Z(\boldsymbol{s}_i) + \varepsilon(\boldsymbol{s}_i) = \boldsymbol{x}(\boldsymbol{s}_i)^\text{T}\boldsymbol{\beta} + B(\boldsymbol{s}_i) + \varepsilon(\boldsymbol{s}_i)$$
 
-Na equação acima, $Z(\boldsymbol{s}_i)$ é o chamado *sinal*. O sinal possui dois componentes. O primeiro, $\boldsymbol{x}(\boldsymbol{s}_i)^\text{T}\boldsymbol{\beta}$ representa os efeitos fixos, ou seja, a tendência espacial de origem desterminística, especificamente, a relação de dependência (causa e efeito) entre as covariáveis ambientais e a variável ambiental. Aqui $\boldsymbol{\beta}$ são os coeficientes da regressão linear e $\text{T}$ denota transposição.
+onde $Z(\boldsymbol{s}_i)$ é o chamado *sinal*. O sinal possui dois componentes. O primeiro, $\boldsymbol{x}(\boldsymbol{s}_i)^\text{T}\boldsymbol{\beta}$ representa os efeitos fixos, ou seja, a tendência espacial de origem desterminística, especificamente, a relação de dependência (causa e efeito) entre as covariáveis ambientais e a variável ambiental. Aqui $\boldsymbol{\beta}$ são os coeficientes da regressão linear e $\text{T}$ denota transposição.
 
 O segundo componente do sinal, $B(\boldsymbol{s}_i)$, representa o efeito aleatório, especificamente, um campo aleatório Gaussiano estacionário não-observável (variável latente), cuja média é igual a zero.
 
@@ -55,9 +55,9 @@ A função de covariância de Whittle-Matérn é dada por
 
 $$\rho(h) = \frac{1}{2^{\nu-1} \varGamma(\nu)}  \left(\frac{h}{\alpha}\right)^\nu K_\nu\left(\frac{h}{\alpha}\right)$$
 
-onde $K_\nu(\cdot)$ denota a função de Bessel modificada de segundo tipo de ordem $\nu$ e $\varGamma$ é a função gama. O parâmetro $\alpha > 0$, também conhecido como alcance ou parâmetro de distância, é aquele que determina a taxa com que a autocorrelação espacial diminui à medida que aumenta a distância de separação $h$. Assim, combinados os parâmetros $\nu$ e $\alpha$, a função de covariância de Whittle-Matérn consegue adorar uma grande variedade de formas, o que faz com que ela seja considerada um generalização de um grande número de modelos teóricos do variograma (\@ref(fig:whittle-matern)). Por exemplo, se $\nu \to \infty$, então a função de pode ser considerada equivalente à função de covariância Gaussiana. Quando $\nu \to 1$, ela corresponde à função de covariância de Whittle. Quando $\nu = 0.5$, então é o mesmo que a função exponencial. Se $\alpha \to \infty$ e $\nu > 0$ ou $\nu \to 0$, então ela aproxima-se das funções potência e logarítmica, respectivamente.
+onde $K_\nu(\cdot)$ denota a função de Bessel modificada de segundo tipo de ordem $\nu$ e $\varGamma(\cdot)$ é a função gama. O parâmetro $\alpha > 0$, também conhecido como alcance ou parâmetro de distância, é aquele que determina a taxa com que a autocorrelação espacial diminui à medida que aumenta a distância de separação $h$. Assim, combinados os parâmetros $\nu$ e $\alpha$, a função de covariância de Whittle-Matérn consegue adorar uma grande variedade de formas, o que faz com que ela seja considerada um generalização de um grande número de modelos teóricos do variograma (\@ref(fig:whittle-matern)). Por exemplo, se $\nu \to \infty$, então a função de pode ser considerada equivalente à função de covariância Gaussiana. Quando $\nu \to 1$, ela corresponde à função elementar de covariância de Whittle. Quando $\nu = 0.5$, então é o mesmo que a função exponencial. Se $\alpha \to \infty$ e $\nu > 0$ ou $\nu \to 0$, então ela aproxima-se das funções potência e logarítmica, respectivamente.
 
-```{r whittle-matern, fig.asp=1, fig.cap='Curvas da função de covariância de Whittle-Matérn para valores do parâmetro de suavidade entre $\nu = 0.1$ e $\nu = 8$, e valores constantes dos parâmetros de distância, $\alpha = 0.20$, e variância, $\sigma^2 = 1$.'}
+```{r whittle-matern, fig.asp=1, fig.cap='Curvas da função de covariância de Whittle-Matérn para valores do parâmetro de suavidade entre 0.1 e 8, e valores constantes dos parâmetros de distância, 0.20, e variância, 1.'}
 h <- seq(0, 1, 0.01)
 alpha <- 0.20
 nu <- c(0.1, 0.2, 0.5, 1, 2, 4, 8)

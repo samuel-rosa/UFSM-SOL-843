@@ -8,6 +8,10 @@ output:
 lang: pt
 ---
 
+```{r, eval=FALSE, echo=FALSE}
+rmarkdown::render('uni-3.Rmd', output_dir = "../docs")
+```
+
 <div id="summary">
 **Temas**: Modelo linear misto de variação espacial.
 </div>
@@ -57,6 +61,8 @@ library(dplyr)
 library(glue)
 library(lattice)
 library(latticeExtra)
+library(georob)
+library(sp)
 
 # Sistemas de referência de coordenadas (Fonte: http://spatialreference.org/ref/epsg/)
 wgs84utm22s <- sp::CRS('+proj=utm +zone=22 +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
@@ -204,10 +210,10 @@ lines(reml_fit, col = "blue", lty = 'dashed')
 ```
 
 ```{r}
-reml_fit_prof <- georob::profilelogLik(reml_fit, values = data.frame(scale = seq(50, 350, by = 10)))
+reml_fit_prof <- georob::profilelogLik(object = reml_fit, values = data.frame(scale = seq(50, 350, by = 10)))
 ```
 
-```{r loglik-scale, fig.asp=1, fig.cap='Perfil da função logarítmica da verossimilhança restrita para o parâmetro alcance (`scale`). A linhas verticais representam a estimativa e intervalo de confiança do parâmetro alcance. A interseção entre a linha horizontal e o perfil indica a região de 95% de confiança para o parâmetro alcance segundo o teste da razão de verossimilhança.'}
+```{r loglik-scale, error=TRUE, fig.asp=1, fig.cap='Perfil da função logarítmica da verossimilhança restrita para o parâmetro alcance (`scale`). A linhas verticais representam a estimativa e intervalo de confiança do parâmetro alcance. A interseção entre a linha horizontal e o perfil indica a região de 95% de confiança para o parâmetro alcance segundo o teste da razão de verossimilhança.'}
 plot(loglik ~ scale, reml_fit_prof, type = "l")
 abline(v = summary(reml_fit)$param.aniso[[1]]['scale', ], lty = c("dashed", rep('dotted', 2)), col = 'red')
 abline(h = reml_fit$loglik - 0.5 * qchisq(0.95, 1), lty = "dotted")

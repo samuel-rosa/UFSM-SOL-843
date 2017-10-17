@@ -208,19 +208,19 @@ lines(reml_fit, col = "blue", lty = 'dashed')
 ```
 
 ```{r}
-reml_fit_prof <- georob::profilelogLik(object = reml_fit, values = data.frame(scale = seq(50, 350, by = 10)))
+prof_reml_fit_scale <- georob::profilelogLik(object = reml_fit, values = data.frame(scale = seq(50, 350, by = 10)))
 ```
 
 ```{r loglik-scale, error=TRUE, fig.asp=1, fig.cap='Perfil da função logarítmica da verossimilhança restrita para o parâmetro alcance (`scale`). A linhas verticais representam a estimativa e intervalo de confiança do parâmetro alcance. A interseção entre a linha horizontal e o perfil indica a região de 95% de confiança para o parâmetro alcance segundo o teste da razão de verossimilhança.'}
-plot(loglik ~ scale, reml_fit_prof, type = "l")
+plot(loglik ~ scale, prof_reml_fit_scale, type = "l")
 abline(v = summary(reml_fit)$param.aniso[[1]]['scale', ], lty = c("dashed", rep('dotted', 2)), col = 'red')
 abline(h = reml_fit$loglik - 0.5 * qchisq(0.95, 1), lty = "dotted")
 ```
 
 ```{r, fig.width=14, fig.height=7, fig.cap='Relação das estimativas da variância parcial (`variance`) e da variância residual (`nugget`) com as estimativas do alcance (`scale`).'}
 op <- par(mfrow = c(1, 2))
-plot(variance ~ scale, reml_fit_prof, ylim = c(0, max(variance)), type = "l")
-plot(nugget ~ scale, reml_fit_prof, ylim = c(0, max(nugget)), type = "l")
+plot(variance ~ scale, prof_reml_fit_scale, ylim = c(0, max(variance)), type = "l")
+plot(nugget ~ scale, prof_reml_fit_scale, ylim = c(0, max(nugget)), type = "l")
 par(op)
 ```
 
@@ -249,3 +249,4 @@ lines(vario_fit, col = "magenta")
 lines(reml_fit, col = "navyblue")
 lines(reml_fit_error, col = "orange")
 ```
+

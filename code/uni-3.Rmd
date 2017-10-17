@@ -94,6 +94,15 @@ col_soil_um <- terrain.colors(nlevels(pedologia25$um))
 str(pedologia25, 2)
 ```
 
+```{r}
+geologia50 <- 
+  glue('{data_folder}geologia50.shp') %>% 
+  raster::shapefile(stringsAsFactors = TRUE) %>% 
+  sp::spTransform(wgs84utm22s)
+col_geo_um <- topo.colors(nlevels(geologia50$geo))
+str(geologia50, 2)
+```
+
 ```{r, message=FALSE, warning=FALSE}
 pontos400_o <- febr::observations('ctb0003', which.cols = 'all', progress = FALSE)
 pontos400_l <- febr::layers('ctb0003', which.cols = 'all', missing.data = 'keep', progress = FALSE)
@@ -106,7 +115,8 @@ sp::coordinates(pontos400) <- ~ coord_x + coord_y
 sp::proj4string(pontos400) <- sirgas2000
 pontos400 <- sp::spTransform(pontos400, wgs84utm22s)
 pontos400$um <- sp::over(x = pontos400, y = pedologia25) %>% unlist()
-pontos400in <- pontos400[!is.na(pontos400$um), ]
+pontos400$geo <- sp::over(x = pontos400, y = geologia50) %>% unlist()
+pontos400in <- pontos400[!is.na(pontos400$um) & !is.na(pontos400$geo), ]
 ```
 
 ```{r pts400-in, eval=FALSE, fig.cap='Distribuição espacial das 376 observações localizadas dentro dos limites da área de estudo.'}
@@ -116,25 +126,35 @@ sp::spplot(
     lattice::xyplot(coord_y ~ coord_x, data = as.data.frame(pontos400in@coords), col = 'red', pch = 17))
 ```
 
+```{r, eval=FALSE, fig.cap='Distribuição espacial das 376 observações localizadas dentro dos limites da área de estudo.'}
+sp::spplot(
+  geologia50, col.regions = col_geo_um, alpha.regions = 0.5, colorkey = FALSE) +
+  latticeExtra::as.layer(
+    lattice::xyplot(coord_y ~ coord_x, data = as.data.frame(pontos400in@coords), col = 'red', pch = 17))
+```
+
 ## Análise exploratória
 
 ```{r lm-fit}
-lm_fit <- lm(areia_ ~ um, pontos400in)
+lm_fit <- lm(areia_ ~ um + geo, pontos400in)
 summary(lm_fit)
 ```
 
 A Figura \@ref(fig:lm-residuos) mostra os resíduos da regressão linear ajustada aos dados do conteúdo de areia.
 
 ```{r lm-residuos, fig.asp=1}
-plot(lm_fit, which = 1)
+op <- par(mfrow = c(2, 2))
+plot(lm_fit, which = 1:4)
+par(op)
 ```
 
 Conforme mostra a Figura \@ref(fig:vario-direction), os resíduos da regressão linear possuem dependência espacial. Partindo da primeira classe de distância de separação, a semivariância aumenta de maneira relativamente rápida e atinge certa estabilidade a partir de 1000-1500 m. Avaliada a evolução da semivariância nas diferentes direções, principalmente nas primeiras classes de distância de separação, não há evidência clara da existência de estruturas de autocorrelação espacial dependentes da direção. Assim, é possível assumir que o processo espacial é isotrópico (do contrário seria chamado anisotrópico).
 
 ```{r vario-direction, fig.asp=1, fig.cap='Variograma direcional dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo.'}
+limites <- seq(0, 1500, length.out = 15)
 residuals(lm_fit) %>% 
   georob::sample.variogram(
-    locations = pontos400in@coords, lag.dist.def = 200, max.lag = 2500,
+    locations = pontos400in@coords, lag.dist.def = limites,
     xy.angle.def = c(0, 22.5, 67.5, 112.5, 157.5, 180)) %>% 
   plot(type = "b", ylab = 'Semivariância', xlab = 'Distância de separação (km)')
 ```
@@ -145,10 +165,10 @@ Assumida a isotropia do processo espacial, podemos computar o semivariograma amo
 vario <- 
   residuals(lm_fit) %>% 
   georob::sample.variogram(
-    locations = pontos400in@coords, lag.dist.def = 200, max.lag = 2500)
+    locations = pontos400in@coords, lag.dist.def = limites)
 vario_fit <- 
   georob::fit.variogram.model(
-  vario, variogram.model = 'RMexp', param = c(variance = 35000, nugget = 5000, scale = 500), 
+  vario, variogram.model = 'RMexp', param = c(variance = 20000, nugget = 2000, scale = 500), 
   weighting.method = "cressie", method = "BFGS")
 ```
 
@@ -168,12 +188,35 @@ summary(vario_fit)
 ## (RE)ML Gaussiano
 
 ```{r}
-fit_reml <- georob::georob(
-  areia_ ~ um, pontos400in, locations = ~ coord_x + coord_y, variogram.model = 'RMexp', 
-  param = c(variance = vario_fit$variogram.object[[1]]$param[[1]], 
-            nugget = vario_fit$variogram.object[[1]]$param[[3]], 
-            scale = vario_fit$variogram.object[[1]]$param[[4]]),
+reml_fit <- georob::georob(
+  areia_ ~ um + geo, pontos400in, locations = ~ coord_x + coord_y, variogram.model = 'RMexp', 
+  param = c(variance = vario_fit$variogram.object[[1]]$param[['variance']], 
+            nugget = vario_fit$variogram.object[[1]]$param[['nugget']], 
+            scale = vario_fit$variogram.object[[1]]$param[['scale']]),
   tuning.psi = 1000, control = georob::control.georob(initial.fixef = 'lm'))
-summary(fit_reml)
+summary(reml_fit)
+```
+
+```{r vario-reml, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.'}
+plot(vario, type = "b", xlab = 'Distância de separação (m)', ylab = 'Semivariância')
+lines(vario_fit, col = "red", lty = 'dashed')
+lines(reml_fit, col = "blue", lty = 'dashed')
+```
+
+```{r}
+reml_fit_prof <- georob::profilelogLik(reml_fit, values = data.frame(scale = seq(50, 350, by = 10)))
+```
+
+```{r loglik-scale, fig.asp=1, fig.cap='Perfil da função logarítmica da verossimilhança restrita para o parâmetro alcance (`scale`). A linhas verticais representam a estimativa e intervalo de confiança do parâmetro alcance. A interseção entre a linha horizontal e o perfil indica a região de 95% de confiança para o parâmetro alcance segundo o teste da razão de verossimilhança.'}
+plot(loglik ~ scale, reml_fit_prof, type = "l")
+abline(v = summary(reml_fit)$param.aniso[[1]]['scale', ], lty = c("dashed", rep('dotted', 2)), col = 'red')
+abline(h = reml_fit$loglik - 0.5 * qchisq(0.95, 1), lty = "dotted")
+```
+
+```{r, fig.width=14, fig.height=7, fig.cap='Relação das estimativas da variância parcial (`variance`) e da variância residual (`nugget`) com as estimativas do alcance (`scale`).'}
+op <- par(mfrow = c(1, 2))
+plot(variance ~ scale, reml_fit_prof, ylim = c(0, max(variance)), type = "l")
+plot(nugget ~ scale, reml_fit_prof, ylim = c(0, max(nugget)), type = "l")
+par(op)
 ```
 

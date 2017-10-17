@@ -71,8 +71,8 @@ Vamos descarregar os arquivos do mapa pedológico para um diretório local. O no
 ```{r}
 data_folder <- '../data/'
 ext <- c('dbf', 'prj', 'shp', 'shx')
-files <- glue('pedologia25.{ext}')
-download <- !all(files %in% list.files(data_folder)) 
+files <- c(glue('pedologia25.{ext}'), glue('geologia50.{ext}'))
+download <- !all(files %in% list.files(data_folder))
 if (download) {
   url <- 'https://github.com/samuel-rosa/UFSM-SOL-843/tree/master/data/'
   url <- glue('{url}{files}')

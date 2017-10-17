@@ -27,17 +27,23 @@ O modelo usado para os dados geoestatísticos $y(\boldsymbol{s}_i)$ é o modelo 
 
 $$Y(\boldsymbol{s}_i) = Z(\boldsymbol{s}_i) + \varepsilon(\boldsymbol{s}_i) = \boldsymbol{x}(\boldsymbol{s}_i)^\text{T}\boldsymbol{\beta} + B(\boldsymbol{s}_i) + \varepsilon(\boldsymbol{s}_i)$$
 
-onde $Z(\boldsymbol{s}_i)$ é o chamado *sinal*. O sinal possui dois componentes. O primeiro, $\boldsymbol{x}(\boldsymbol{s}_i)^\text{T}\boldsymbol{\beta}$ representa os efeitos fixos, ou seja, a tendência espacial de origem desterminística, especificamente, a relação de dependência (causa e efeito) entre as covariáveis ambientais e a variável ambiental. Aqui $\boldsymbol{\beta}$ são os coeficientes da regressão linear e $\text{T}$ denota transposição.
+$Z(\boldsymbol{s}_i)$ é o chamado *sinal* e possui dois componentes. O primeiro, $\boldsymbol{x}(\boldsymbol{s}_i)^\text{T}\boldsymbol{\beta}$ representa os efeitos fixos, ou seja, a tendência espacial de origem desterminística, especificamente, a relação de dependência (causa e efeito) entre as covariáveis ambientais e a variável ambiental. Aqui $\boldsymbol{\beta}$ são os coeficientes desconhecidos da regressão linear e $\text{T}$ denota transposição.
 
-O segundo componente do sinal, $B(\boldsymbol{s}_i)$, representa o efeito aleatório, especificamente, um campo aleatório Gaussiano estacionário não-observável (variável latente), cuja média é igual a zero.
+O segundo componente do sinal, $B(\boldsymbol{s}_i)$, representa os efeitos aleatórios, especificamente, um campo aleatório Gaussiano estacionário não-observável, também chamado de variável latente. Esse campo aleatório Gaussiano é inteiramente descrito por sua função de média e função de covariância.
 
-Por fim, $\varepsilon(\boldsymbol{s}_i)$ é um resíduo (ou *ruído*) independente e identicamente distribuído (*i.i.d.*), descrito por uma distribuição Gaussina de probabilidade, cujo parâmetro de escala é $\tau$. Tradicionalmente, $\tau^2$ é chamado de efeito pepita.
+Por fim, $\varepsilon(\boldsymbol{s}_i)$ é um erro (ou *ruído*) independente e identicamente distribuído (iid), descrito por uma distribuição Gaussina de probabilidade, cujo parâmetro desconhecido de escala é $\tau$. Tradicionalmente, $\tau^2$ é chamado de efeito pepita ou ainda de variância residual. Note que alguns autores -- como @Papritz2015 -- denotam esse erro aleatório independente simplesmente por $\varepsilon_i$ a fim de destacar sua independência.
 
-A matriz de covariância do vetor de efeitos aleatórios Gaussianos espaciais $\boldsymbol{B}$ é denotada por
+A matriz de covariância dos efeitos aleatórios $\boldsymbol{B}$ é denotada por
 
 $$\text{E}[\boldsymbol{B}\,\boldsymbol{B}^\text{T}] = \boldsymbol{\Gamma}_\theta = \sigma^2_n \boldsymbol{I} + \sigma^2 \boldsymbol{V}_\alpha = \sigma^2_Z V_{\alpha,\xi} = \sigma^2_Z ((1-\xi) I - \xi V_\alpha)$$
 
-Na equação acima, $\sigma_n^2$ é a variância devida à variação espacial de micro-escala, aparentemente não-correlacionada, em $B(\boldsymbol{s})$, que não pode ser resolvida com o delineamento amostral escolhido. Enquanto isso, $\sigma^2$ é a variância da variação autocorrelacionada de $B(\boldsymbol{s})$ que foi capturada pelo conjunto de observações, sendo $\sigma_Z^2 = \sigma_n^2 + \sigma^2$ definida como a variância do sinal, e $\xi = \sigma^2/\sigma_B^2$. Para que seja possível estimar ambos $\sigma_n^2$ e $\tau^2$, ao invés de apenas a sua soma, é preciso ter medidas replicadas para pelo menos algumas das observações $\boldsymbol{s}_i$.
+$\sigma_n^2$ é a variância devida à variação espacial de micro-escala em $B(\boldsymbol{s})$, que geralmente aparenta não possuir qualquer correlação espacial, mas que na verdade simplesmente não pode ser capturada pelo delineamento (densidade e configuração) amostral utilizado. Assim, $\sigma_n^2$ tradicionalmente é incorporado no chamado efeito pepita.
+
+$\sigma^2$ é a variância devida à variação espacial autocorrelacionada de $B(\boldsymbol{s})$ que foi capturada pelo conjunto de observações, pois está estruturada em escalas espaciais maiores do que a menor distância de separação entre os pares de observações vizinhas. Somadas $\sigma_n^2$ e $\sigma^2$, tem-se a variância do sinal, $\sigma_Z^2$, onde $\xi = \sigma^2/\sigma_Z^2$.
+
+Para reduzir a contribuição de $\sigma_n^2$ para a variância do sinal, precisamos reduzir a distância de separação entre algums dos pares de observação vizinhas. Para que seja possível estimar ambos $\sigma_n^2$ e $\tau^2$, ao invés de apenas a sua soma como tradicionalmente feito, precisamos ter medidas replicadas da variável ambiental para pelo menos algumas das observações $\boldsymbol{s}_i$.
+
+
 
 $\boldsymbol{\theta}$ é um vetor de todos os parâmetros do variograma, exceto $\tau^2$.
 
@@ -68,9 +74,6 @@ for (i in 1:ncol(gamma)) {
   text(x = h[25], y = gamma[25, i], labels = nu[i], pos = 1)
 }
 ```
-
-
-
 
 # Método da máxima verossimilhança (restrita)
 

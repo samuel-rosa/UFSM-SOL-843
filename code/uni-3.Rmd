@@ -22,11 +22,23 @@ Dados geoestatísticos são dados observados de uma variável ambiental, $y(\bol
 
 ## O modelo
 
-O modelo usado para os dados geoestatísticos $y(\boldsymbol{s}_i)$ é o modelo linear misto de variação espacial:
+O modelo usado para os dados geoestatísticos $y(\boldsymbol{s}_i)$ é o modelo linear misto de variação espacial. Segundo esse modelo, o valor observado da variável ambiental em um determinado local é resultado da soma de efeitos fixos e efeitos aleatórios.
 
 $$Y(\boldsymbol{s}_i) = Z(\boldsymbol{s}_i) + \varepsilon(\boldsymbol{s}_i) = \boldsymbol{x}(\boldsymbol{s}_i)^\text{T}\boldsymbol{\beta} + B(\boldsymbol{s}_i) + \varepsilon(\boldsymbol{s}_i)$$
 
-Segundo o modelo linear misto de variação espacial, os dados da variável ambiental é resultado da soma de efeitos fixos e efeitos aleatórios. Na equação acima, $Z(\boldsymbol{s}_i)$ é o chamado *sinal*. O sinal possui dois componentes. O primeiro, $\boldsymbol{x}(\boldsymbol{s}_i)^\text{T}\boldsymbol{\beta}$ representa os efeitos fixos, ou seja, a tendência espacial de origem desterminística, especificamente, a relação de dependência (causa e efeito) entre as covariáveis ambientais e a variável ambiental. Aqui $\boldsymbol{\beta}$ são os coeficientes da regressão linear ($\text{T}$ denota transposição). O segundo componente do sinal da variável ambiental, $B(\boldsymbol{s}_i)$, representa uma parte dos efeitos aleatórios, especificamente, um campo aleatório Gaussiano estacionário não-observável cuja média é igual a zero (variável latente). Por fim, $\varepsilon(\boldsymbol{s}_i)$ é um resíduo (ou *ruído*) independente e identicamente distribuído (*i.i.d.*), descrito por uma distribuição Gaussina de probabilidade, cujo parâmetro de escala é $\tau$. Tradicionalmente, $\tau^2$ é chamado de efeito pepita.
+Na equação acima, $Z(\boldsymbol{s}_i)$ é o chamado *sinal*. O sinal possui dois componentes. O primeiro, $\boldsymbol{x}(\boldsymbol{s}_i)^\text{T}\boldsymbol{\beta}$ representa os efeitos fixos, ou seja, a tendência espacial de origem desterminística, especificamente, a relação de dependência (causa e efeito) entre as covariáveis ambientais e a variável ambiental. Aqui $\boldsymbol{\beta}$ são os coeficientes da regressão linear e $\text{T}$ denota transposição.
+
+O segundo componente do sinal, $B(\boldsymbol{s}_i)$, representa o efeito aleatório, especificamente, um campo aleatório Gaussiano estacionário não-observável (variável latente), cuja média é igual a zero.
+
+Por fim, $\varepsilon(\boldsymbol{s}_i)$ é um resíduo (ou *ruído*) independente e identicamente distribuído (*i.i.d.*), descrito por uma distribuição Gaussina de probabilidade, cujo parâmetro de escala é $\tau$. Tradicionalmente, $\tau^2$ é chamado de efeito pepita.
+
+A matriz de covariância do vetor de efeitos aleatórios Gaussianos espaciais $\boldsymbol{B}$ é denotada por
+
+$$\text{E}[\boldsymbol{B}\,\boldsymbol{B}^\text{T}] = \boldsymbol{\Gamma}_\theta = \sigma^2_n \boldsymbol{I} + \sigma^2 \boldsymbol{V}_\alpha = \sigma^2_Z V_{\alpha,\xi} = \sigma^2_Z ((1-\xi) I - \xi V_\alpha)$$
+
+Na equação acima, $\sigma_n^2$ é a variância devida à variação espacial de micro-escala, aparentemente não-correlacionada, em $B(\boldsymbol{s})$, que não pode ser resolvida com o delineamento amostral escolhido. Enquanto isso, $\sigma^2$ é a variância da variação autocorrelacionada de $B(\boldsymbol{s})$ que foi capturada pelo conjunto de observações, sendo $\sigma_Z^2 = \sigma_n^2 + \sigma^2$ definida como a variância do sinal, e $\xi = \sigma^2/\sigma_B^2$. Para que seja possível estimar ambos $\sigma_n^2$ e $\tau^2$, ao invés de apenas a sua soma, é preciso ter medidas replicadas para pelo menos algumas das observações $\boldsymbol{s}_i$.
+
+O parâmetro $\alpha$ acima representa o alcance. Enquanto isso, $\boldsymbol{\theta}$ é um vetor de todos os parâmetros do variograma, exceto $\tau^2$. 
 
 ## A estimação
 

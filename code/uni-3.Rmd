@@ -109,7 +109,7 @@ pontos400$um <- sp::over(x = pontos400, y = pedologia25) %>% unlist()
 pontos400in <- pontos400[!is.na(pontos400$um), ]
 ```
 
-```{r pts400-in, fig.cap='Distribuição espacial das 376 observações localizadas dentro dos limites da área de estudo.'}
+```{r pts400-in, eval=FALSE, fig.cap='Distribuição espacial das 376 observações localizadas dentro dos limites da área de estudo.'}
 sp::spplot(
   pedologia25, col.regions = col_soil_um, alpha.regions = 0.3, colorkey = FALSE) +
   latticeExtra::as.layer(
@@ -136,7 +136,7 @@ residuals(lm_fit) %>%
   georob::sample.variogram(
     locations = pontos400in@coords, lag.dist.def = 200, max.lag = 2500,
     xy.angle.def = c(0, 22.5, 67.5, 112.5, 157.5, 180)) %>% 
-  plot(type = "b", ylab = 'Semivariância', xlab = 'Distância de separação (m)')
+  plot(type = "b", ylab = 'Semivariância', xlab = 'Distância de separação (km)')
 ```
 
 Assumida a isotropia do processo espacial, podemos computar o semivariograma amostral omnidirecional (ou independente da direção). Em seguida, vamos ajustar ao variograma amostral um modelo exponencial do variograma. Para isso usamos o método dos quadrados mínimos não-lineares ponderados, sendo a ponderação definida conforme o método de Cressie (1993, sec. 2.6.2). O processo de estimativa dos parâmetros do modelo exponencial do variograma é conduzido via otimização usando a função `stats::optim(method = "BFGS")`. Os valores produzidos pelo otimizador a cada 10 iterações são impressos no console.
@@ -170,8 +170,10 @@ summary(vario_fit)
 ```{r}
 fit_reml <- georob::georob(
   areia_ ~ um, pontos400in, locations = ~ coord_x + coord_y, variogram.model = 'RMexp', 
-  param = c(variance = 35000, nugget = 5000, scale = 500), tuning.psi = 1000,
-  control = georob::control.georob(initial.fixef = 'lm'))
+  param = c(variance = vario_fit$variogram.object[[1]]$param[[1]], 
+            nugget = vario_fit$variogram.object[[1]]$param[[3]], 
+            scale = vario_fit$variogram.object[[1]]$param[[4]]),
+  tuning.psi = 1000, control = georob::control.georob(initial.fixef = 'lm'))
 summary(fit_reml)
 ```
 

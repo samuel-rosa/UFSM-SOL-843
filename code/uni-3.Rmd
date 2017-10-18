@@ -33,21 +33,19 @@ O segundo componente do sinal, $B(\boldsymbol{s}_i)$, representa os efeitos alea
 
 Por fim, $\varepsilon(\boldsymbol{s}_i)$ é um erro (ou *ruído*) independente e identicamente distribuído (iid), descrito por uma distribuição Gaussina de probabilidade, cujo parâmetro desconhecido de escala é $\tau$. Tradicionalmente, $\tau^2$ é chamado de efeito pepita ou ainda de variância residual. Note que alguns autores -- como @Papritz2015 -- denotam esse erro aleatório independente simplesmente por $\varepsilon_i$ a fim de destacar sua independência.
 
-A matriz de covariância dos efeitos aleatórios $\boldsymbol{B}$ é denotada por
+<!-- A matriz de covariância dos efeitos aleatórios $\boldsymbol{B}$ é denotada por -->
 
-$$\text{E}[\boldsymbol{B}\,\boldsymbol{B}^\text{T}] = \boldsymbol{\Gamma}_\theta = \sigma^2_n \boldsymbol{I} + \sigma^2 \boldsymbol{V}_\alpha = \sigma^2_Z V_{\alpha,\xi} = \sigma^2_Z ((1-\xi) I - \xi V_\alpha)$$
+<!-- $$\text{E}[\boldsymbol{B}\,\boldsymbol{B}^\text{T}] = \boldsymbol{\Gamma}_\theta = \sigma^2_n \boldsymbol{I} + \sigma^2 \boldsymbol{V}_\alpha = \sigma^2_Z V_{\alpha,\xi} = \sigma^2_Z ((1-\xi) I - \xi V_\alpha)$$ -->
 
-$\sigma_n^2$ é a variância devida à variação espacial de micro-escala em $B(\boldsymbol{s})$, que geralmente aparenta não possuir qualquer correlação espacial, mas que na verdade simplesmente não pode ser capturada pelo delineamento (densidade e configuração) amostral utilizado. Assim, $\sigma_n^2$ tradicionalmente é incorporado no chamado efeito pepita.
+<!-- $\sigma_n^2$ é a variância devida à variação espacial de micro-escala em $B(\boldsymbol{s})$, que geralmente aparenta não possuir qualquer correlação espacial, mas que na verdade simplesmente não pode ser capturada pelo delineamento (densidade e configuração) amostral utilizado. Assim, $\sigma_n^2$ tradicionalmente é incorporado no chamado efeito pepita. -->
 
-$\sigma^2$ é a variância devida à variação espacial autocorrelacionada de $B(\boldsymbol{s})$ que foi capturada pelo conjunto de observações, pois está estruturada em escalas espaciais maiores do que a menor distância de separação entre os pares de observações vizinhas. Somadas $\sigma_n^2$ e $\sigma^2$, tem-se a variância do sinal, $\sigma_Z^2$, onde $\xi = \sigma^2/\sigma_Z^2$.
+<!-- $\sigma^2$ é a variância devida à variação espacial autocorrelacionada de $B(\boldsymbol{s})$ que foi capturada pelo conjunto de observações, pois está estruturada em escalas espaciais maiores do que a menor distância de separação entre os pares de observações vizinhas. Somadas $\sigma_n^2$ e $\sigma^2$, tem-se a variância do sinal, $\sigma_Z^2$, onde $\xi = \sigma^2/\sigma_Z^2$. -->
 
-Para reduzir a contribuição de $\sigma_n^2$ para a variância do sinal, precisamos reduzir a distância de separação entre algums dos pares de observação vizinhas. Para que seja possível estimar ambos $\sigma_n^2$ e $\tau^2$, ao invés de apenas a sua soma como tradicionalmente feito, precisamos ter medidas replicadas da variável ambiental para pelo menos algumas das observações $\boldsymbol{s}_i$.
+<!-- Para reduzir a contribuição de $\sigma_n^2$ para a variância do sinal, precisamos reduzir a distância de separação entre algums dos pares de observação vizinhas. Para que seja possível estimar ambos $\sigma_n^2$ e $\tau^2$, ao invés de apenas a sua soma como tradicionalmente feito, precisamos ter medidas replicadas da variável ambiental para pelo menos algumas das observações $\boldsymbol{s}_i$. -->
 
+<!-- $\boldsymbol{\theta}$ é um vetor de todos os parâmetros do variograma, exceto $\tau^2$. -->
 
-
-$\boldsymbol{\theta}$ é um vetor de todos os parâmetros do variograma, exceto $\tau^2$.
-
-$\alpha$ é o parâmetro de distância, também conhecido como alcance. Autores como @DiggleEtAl2007 denotam esse parâmetro por $\phi$.
+<!-- $\alpha$ é o parâmetro de distância, também conhecido como alcance. Autores como @DiggleEtAl2007 denotam esse parâmetro por $\phi$. -->
 
 # Função de covariância Whittle-Matérn
 
@@ -82,19 +80,17 @@ Todo modelo estocástico é especificado por um conjunto de parâmetros que desc
 No contexto do modelo linear misto de variação espacial, nossa intenção é, a partir do conjunto finito $n$ de observações espaciais da variável ambiental, $\boldsymbol{y}^\text{T} = \{y(\boldsymbol{s}_1), y(\boldsymbol{s}_2), \ldots, y(\boldsymbol{s}_n)\}$ 
 *estimar* parâmetros que geralmente são de interesse científico direto, como os coeficientes da regressão linear, $\boldsymbol{\beta}$, *estimar* os parâmetros que definem a estrutura de covariância de um modelo para o sinal $Z(\boldsymbol{s})$, sendo eles $\boldsymbol{\theta}^\text{T} = (\sigma^2, \sigma_n^2, \ldots, \alpha)$, além de $\tau^2$, e *estimar* o vetor não-observável de efeitos aleatórios $\boldsymbol{B}$. No vetor de parâmetros $\boldsymbol{\theta}^\text{T}$, $\ldots$ denota parâmetros adicionais do modelo, tal como o parâmetro de suavidade, $\nu$, da função de covariância Whittle-Matérn.
 
-Para isso precisamos especificar o modelo estatístico, por exemplo, o modelo Gaussiano
+<!-- Para isso precisamos especificar o modelo estatístico, por exemplo, o modelo Gaussiano -->
 
-$$Y \sim \text{N}(X\beta, \sigma^2R(\alpha) + \tau^2I)$$
+<!-- $$Y \sim \text{N}(\boldsymbol{X}\boldsymbol{\beta}, \sigma^2R(\alpha) + \tau^2I)$$ -->
 
-enão a função de verossimilhança é dada por
+<!-- então a função de verossimilhança é dada por -->
 
-$$$$
+<!-- $$$$ -->
 
 Um dos problemas do método da MV(R) é que a solução encontrada pelos algorítmos otimizadores pode ser multimodal. Isso significa que mais de um conjunto de valores dos parâmetros do modelo podem retornar valores muito similares da log-verossimilhança. A maioria desses conjuntos consistem em máximos locais, quando o objetivo é encontrar o máximo global. Para evitar esse tipo de problema é preciso fornecer uma boa estimativa inicial dos parâmetros para o otimizador, o que requer um bom conhecimento da estrutura dos dados e do processo estocástico subjascente.
 
 Contudo, mesmo fornecendo uma boa estimativa inicial, não há garantia de que os valores retornados pelo máximo global façam qualquer sentido, significando que não sejam exatamente ótimos. Mais uma vez, identificar isso requer um bom conhecimento da estrutura dos dados e do processo estocástico subjascente. A solução mais comumente adotada aqui é a avaliação de uma perfil da da função logarítmica da verossimilhança. 
-
-## Perfil
 
 # Exercício
 

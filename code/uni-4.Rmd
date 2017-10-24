@@ -47,8 +47,7 @@ Contudo, em geral, nós não conhecemos a média espacial. Nesse caso é preciso
 possuímos em mãos. Se não tivermos segurança de que a média é constante em toda a área de estudo, então podemos
 simplesmente pressupor que seja constante em curtos intervalos de distância (hipótese intrínseca). Nesse caso, 
 estaremos então fazendo a predição espacial tanto dos efeitos aleatórios como da média espacial (efeito fixo).
-Essa prática é conhecida como *krigagem ordinária* na terminologia geoestatística clássica, e a média pode ser
-estimada, por exemplo, via método dos quadrados mínimos generalizado.
+Essa prática é conhecida como *krigagem ordinária* na terminologia geoestatística clássica.
 
 A predição espacial do sinal $Z$ em um ponto $\boldsymbol{s}_0$ usando krigagem ordinária sob a hipótese 
 intrínseca pode ser representada da seguinte forma:
@@ -62,4 +61,152 @@ obrigatoriamente, 1, ou seja, $\sum_{i=1}^n \boldsymbol{\lambda}(\boldsymbol{s}_
 predições sejam não-enviesadas.
 
 ## Krigagem universal
+
+$$\hat{Z}(\boldsymbol{s}_0) = \sum_{i=1}^n \boldsymbol{\lambda}(\boldsymbol{s}_i) Y(\boldsymbol{s}_i)$$
+
+# Validação estatística
+
+```{r, message=FALSE, warning=FALSE}
+# Pacotes
+library(magrittr)
+library(dplyr)
+library(glue)
+library(lattice)
+library(latticeExtra)
+library(georob)
+library(sp)
+
+# Sistemas de referência de coordenadas (Fonte: http://spatialreference.org/ref/epsg/)
+wgs84utm22s <- sp::CRS('+proj=utm +zone=22 +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
+sirgas2000 <- sp::CRS('+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs')
+
+# Rampas de cores
+col_soil_var <- topo.colors(100)
+```
+
+```{r}
+data_folder <- '../data/'
+ext <- c('dbf', 'prj', 'shp', 'shx')
+files <- c(glue('pedologia25.{ext}'), glue('geologia50.{ext}'))
+download <- !all(files %in% list.files(data_folder))
+if (download) {
+  url <- 'https://github.com/samuel-rosa/UFSM-SOL-843/tree/master/data/'
+  url <- glue('{url}{files}')
+  destfile <- glue('{data_folder}{files}')
+  for (i in 1:length(files)) {
+    download.file(url = url[i], destfile = destfile[i])
+  }
+}
+```
+
+```{r}
+pedologia25 <- 
+  glue('{data_folder}pedologia25.shp') %>% 
+  raster::shapefile(stringsAsFactors = TRUE) %>% 
+  sp::spTransform(wgs84utm22s)
+str(pedologia25, 2)
+```
+
+```{r}
+geologia50 <- 
+  glue('{data_folder}geologia50.shp') %>% 
+  raster::shapefile(stringsAsFactors = TRUE) %>% 
+  sp::spTransform(wgs84utm22s)
+str(geologia50, 2)
+```
+
+```{r, message=FALSE, warning=FALSE}
+pontos400_o <- febr::observations('ctb0003', which.cols = 'all', progress = FALSE)
+pontos400_l <- febr::layers('ctb0003', which.cols = 'all', missing.data = 'keep', progress = FALSE)
+id <- c('dataset_id', 'observacao_id')
+pontos400 <- 
+  merge(pontos400_o, pontos400_l, by.x = id, by.y = id) %>% 
+  select(observacao_id, coord_x, coord_y, taxon_sibcs_2009, ca_kcl_aas, argila_, areia_)
+rm(pontos400_l, pontos400_o)
+sp::coordinates(pontos400) <- ~ coord_x + coord_y
+sp::proj4string(pontos400) <- sirgas2000
+pontos400 <- sp::spTransform(pontos400, wgs84utm22s)
+pontos400$um <- sp::over(x = pontos400, y = pedologia25) %>% unlist()
+pontos400$geo <- sp::over(x = pontos400, y = geologia50) %>% unlist()
+pontos400in <- pontos400[!is.na(pontos400$um) & !is.na(pontos400$geo), ]
+```
+
+```{r lm-fit}
+lm_fit <- lm(areia_ ~ um + geo, pontos400in)
+summary(lm_fit)
+```
+
+```{r vario-direction, fig.asp=1, fig.cap='Variograma direcional dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo.'}
+limites <- seq(0, 1500, length.out = 15)
+residuals(lm_fit) %>% 
+  georob::sample.variogram(
+    locations = pontos400in@coords, lag.dist.def = limites,
+    xy.angle.def = c(0, 22.5, 67.5, 112.5, 157.5, 180)) %>% 
+  plot(type = "b", ylab = 'Semivariância', xlab = 'Distância de separação (km)')
+```
+
+```{r, fig.asp=1, message=FALSE, warning=FALSE}
+vario <- 
+  residuals(lm_fit) %>% 
+  georob::sample.variogram(
+    locations = pontos400in@coords, lag.dist.def = limites)
+vario_fit <- 
+  georob::fit.variogram.model(
+  vario, variogram.model = 'RMexp', param = c(variance = 20000, nugget = 2000, scale = 500), 
+  weighting.method = "cressie", method = "BFGS")
+```
+
+```{r}
+reml_fit <- georob::georob(
+  areia_ ~ um + geo, pontos400in, locations = ~ coord_x + coord_y, variogram.model = 'RMexp', 
+  param = c(variance = vario_fit$variogram.object[[1]]$param[['variance']], 
+            nugget = vario_fit$variogram.object[[1]]$param[['nugget']], 
+            scale = vario_fit$variogram.object[[1]]$param[['scale']]),
+  tuning.psi = 1000, control = georob::control.georob(initial.fixef = 'lm'))
+summary(reml_fit)
+```
+
+```{r vario-reml, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.'}
+plot(vario, type = "b", xlab = 'Distância de separação (m)', ylab = 'Semivariância')
+lines(vario_fit, col = "red", lty = 'dashed')
+lines(reml_fit, col = "blue", lty = 'dashed')
+```
+
+```{r}
+grid <- sp::spsample(pedologia25, 10000, type = 'regular')
+grid <- 
+  sp::SpatialPointsDataFrame(
+    coords = grid@coords, 
+    data = data.frame(
+      um = sp::over(grid, pedologia25) %>% unlist(),
+      geo = sp::over(grid, geologia50) %>% unlist()),
+    proj4string = grid@proj4string)
+str(grid)
+```
+
+```{r}
+colnames(grid@coords) <- colnames(pontos400in@coords)
+pred_ponto <- predict(reml_fit, newdata = grid, control = georob::control.predict.georob(extended.output = TRUE))
+sp::gridded(pred_ponto) <- TRUE
+str(pred_ponto)
+```
+
+```{r, fig.width=12}
+at <- pred_ponto@data[, c("pred", "lower", "upper")] %>% range()
+at <- seq(at[1], at[2], length.out = 20)
+sp::spplot(pred_ponto, zcol = c("lower", "pred", "upper"), at = at, main = "prediction")
+```
+
+```{r}
+validacao <- georob::cv(reml_fit)
+summary(validacao)
+```
+
+```{r}
+1 - sum((validacao$pred$data - validacao$pred$pred)^2) / sum((validacao$pred$data - mean(validacao$pred$data))^2)
+```
+
+```{r, fig.asp=1}
+plot(validacao)
+```
 

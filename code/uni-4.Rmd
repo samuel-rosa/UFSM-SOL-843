@@ -66,6 +66,31 @@ $$\hat{Z}(\boldsymbol{s}_0) = \sum_{i=1}^n \boldsymbol{\lambda}(\boldsymbol{s}_i
 
 # Validação estatística
 
+O procedimento da validação cruzada consiste na partição aleatória do conjunto completo de dados em $k$
+subconjuntos com aproximadamente o mesmo número de observações. O número de subconjuntos é variável, geralmente
+entre 2 e $n$.
+
+A cada passo da validação cruzada, um dos subconjuntos é deixado separado para ser utilizado como conjunto de 
+dados de validação. Os demais $k - 1$ subconjuntos são utilizados para constituir o conjunto de calibração do 
+modelo linear misto. Calibrado o modelo linear misto, faz-se a predição dos valores da variável de interesse 
+nas observações do conjunto deixado separado, o conjunto de dados de validação. Esse procedimento é repetido 
+até que cada subconjunto $k$ seja, em algum momento, deixado separado para constituir o conjunto de dados de 
+validação enquanto os outros $k - 1$ segmentos são utilizados para estimar os parâmetros do modelo linear 
+misto. A partir das predições realizadas para cada um dos $k$ subconjuntos são calculados os erros para avaliar
+a qualidade das predições.
+
+A validação externa difere da validação cruzada pelo fato de que os dados usados para validação não são nunca 
+usados para estimar os parâmetros do modelo. Assim, a validação cruzada é uma medida obtida na fase inicial de 
+trabalho, usando os dados que temos em mãos. Enquanto isso, a validação externa é sempre uma fase posterior, 
+realizada usando dados obtidos no campo depois de já termos, por exemplo, produzido o mapa da variável de
+interesse com a qual estamos trabalhando.
+
+Como a validação cruzada reusa os dados já usados para estimar os parâmetros do modelo, ela costuma ser 
+otimista em relação à qualidade do modelo. Por outro lado, como a validação externa usa dados coletados somente
+depois de termos realizado as predições espaciais, sua avaliação costuma ser mais rígida, geralmente mais 
+rigorosa do que a validação cruzada.
+
+
 ```{r, message=FALSE, warning=FALSE}
 # Pacotes
 library(magrittr)

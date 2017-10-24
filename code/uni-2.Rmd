@@ -1,12 +1,14 @@
 ---
 title: "Unidade II -- Características dos Dados Espaciais"
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../docs") })
 output: 
   bookdown::html_document2:
     css: styles.css
 lang: pt
 ---
+
+```{r, eval=FALSE, echo=FALSE}
+rmarkdown::render('uni-2.Rmd', encoding = 'UTF-8', output_dir = "../docs")
+```
 
 <div id="summary">
 **Temas**: Observações dependentes e preferenciais. Resíduos espacialmente correlacionados. A visão estocástica do modelo contínuo de variação espacial. O processo gerador aleatório e espacialmente autocorrelacionado. Semivariância e modelos matemáticos do semivariograma empírico.

@@ -68,12 +68,16 @@ nu <- c(0.1, 0.2, 0.5, 1, 2, 4, 8)
 gamma <- 1 - sapply(nu, function (x) geoR::matern(u = h, phi = alpha, kappa = x))
 plot(gamma, type = 'n', xlim = range(h), xlab = 'Distância de separação', ylab = 'Semivariância')
 for (i in 1:ncol(gamma)) {
-  lines(x = h, y = gamma[, i])
+  lines(x = h, y = gamma[, i], lwd = 2)
   text(x = h[25], y = gamma[25, i], labels = nu[i], pos = 1)
 }
 ```
 
 # Método da máxima verossimilhança (restrita)
+
+* Correlação entre as estimativas do variograma para classes de distância subsequentes. Isso torna a analogia com a regressão não-linear inapropriada. Isso suaviza o semivariograma e dá uma falsa certeza sobre a acurácia das estimativas
+* Método dos momentos visa reduzir a variância em torno da média, portanto subestima a semivariância
+* O efeito pepita precisa ser estimado via interpolação
 
 Todo modelo estocástico é especificado por um conjunto de parâmetros que descreve uma função de distribuição de probabilidade. Usar um modelo estocástico para modelar um conjunto de dados consiste, na prática, em estimar esses parâmetros a partir dos dados existentes. O conjunto de parâmetros estimados deve ser tal que descreva, dentre todos os conjuntos de parâmetros possíveis, a função de distribuição de probabilidade com a maior chance de ter gerado exatamente aqueles dados. Como uma função dos parâmetros de um modelo estocástico, estimados a partir de um conjunto de dados, é chamada de função de verossimilhança, ou simplesmente verossimilhança, o método de estimação é chamado método da máxima verossimilhança. Em outras palavras, o método da máxima verossimilhança procura pelo conjunto de parâmetros do modelo estocástico que melhor explica os dados observados.
 
@@ -152,6 +156,7 @@ str(geologia50, 2)
 ```{r, message=FALSE, warning=FALSE}
 pontos400_o <- febr::observations('ctb0003', which.cols = 'all', progress = FALSE)
 pontos400_l <- febr::layers('ctb0003', which.cols = 'all', missing.data = 'keep', progress = FALSE)
+
 id <- c('dataset_id', 'observacao_id')
 pontos400 <- 
   merge(pontos400_o, pontos400_l, by.x = id, by.y = id) %>% 
@@ -160,8 +165,10 @@ rm(pontos400_l, pontos400_o)
 sp::coordinates(pontos400) <- ~ coord_x + coord_y
 sp::proj4string(pontos400) <- sirgas2000
 pontos400 <- sp::spTransform(pontos400, wgs84utm22s)
+
 pontos400$um <- sp::over(x = pontos400, y = pedologia25) %>% unlist()
 pontos400$geo <- sp::over(x = pontos400, y = geologia50) %>% unlist()
+
 pontos400in <- pontos400[!is.na(pontos400$um) & !is.na(pontos400$geo), ]
 ```
 
@@ -188,21 +195,21 @@ summary(lm_fit)
 
 A Figura \@ref(fig:lm-residuos) mostra os resíduos da regressão linear ajustada aos dados do conteúdo de areia.
 
-```{r lm-residuos, fig.asp=1}
+```{r lm-residuos, fig.asp=1, fig.width=12}
 op <- par(mfrow = c(2, 2))
-plot(lm_fit, which = 1:4)
+plot(lm_fit, which = 1:4, cex = 1.5, lwd = 1.5)
 par(op)
 ```
 
 Conforme mostra a Figura \@ref(fig:vario-direction), os resíduos da regressão linear possuem dependência espacial. Partindo da primeira classe de distância de separação, a semivariância aumenta de maneira relativamente rápida e atinge certa estabilidade a partir de 1000-1500 m. Avaliada a evolução da semivariância nas diferentes direções, principalmente nas primeiras classes de distância de separação, não há evidência clara da existência de estruturas de autocorrelação espacial dependentes da direção. Assim, é possível assumir que o processo espacial é isotrópico (do contrário seria chamado anisotrópico).
 
-```{r vario-direction, fig.asp=1, fig.cap='Variograma direcional dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo.'}
+```{r vario-direction, fig.asp=1, fig.cap='Variograma direcional dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo.', fig.width=10}
 limites <- seq(0, 1500, length.out = 15)
 residuals(lm_fit) %>% 
   georob::sample.variogram(
     locations = pontos400in@coords, lag.dist.def = limites,
     xy.angle.def = c(0, 22.5, 67.5, 112.5, 157.5, 180)) %>% 
-  plot(type = "b", ylab = 'Semivariância', xlab = 'Distância de separação (km)')
+  plot(type = "b", ylab = 'Semivariância', xlab = 'Distância de separação (km)', cex = 1.5, lwd = 1.5)
 ```
 
 Assumida a isotropia do processo espacial, podemos computar o semivariograma amostral omnidirecional (ou independente da direção). Em seguida, vamos ajustar ao variograma amostral um modelo exponencial do variograma. Para isso usamos o método dos quadrados mínimos não-lineares ponderados, sendo a ponderação definida conforme o método de Cressie (1993, sec. 2.6.2). O processo de estimativa dos parâmetros do modelo exponencial do variograma é conduzido via otimização usando a função `stats::optim(method = "BFGS")`. Os valores produzidos pelo otimizador a cada 10 iterações são impressos no console.
@@ -220,9 +227,9 @@ vario_fit <-
 
 O ajuste do modelo exponencial ao variograma amostral dos resíduos do conteúdo de areia é mostrado na Figura \@ref(fig:vario-exp). Note como a curva ajustada passa pelo centro de massa dos doze pontos do variograma amostral, uma característica do método dos quadrados mínimos.
 
-```{r vario-exp, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.'}
+```{r vario-exp, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.', fig.width=10}
 plot(vario, type = "b", xlab = 'Distância de separação (m)', ylab = 'Semivariância')
-lines(vario_fit, col = "red", lty = 'dashed')
+lines(vario_fit, col = "red", lty = 'dashed', lwd = 1.5)
 ```
 
 Os parâmetros ajustados do modelo exponencial do variograma são mostrados abaixo. Note que o otimizador precisou de `r vario_fit$iter[1]` iterações para convergir, ou seja, encontrar os valores ótimos -- ótimo condicional aos dados -- para o modelo exponencial. Um diferencial do pacote **georob** -- comparado ao pacote **gestat** -- é que o mesmo retorna, além dos parâmetros estimados, os limites inferior (`Lower`) e superior (`Upper`) de confiança dessas estimativas. Note como o intervalo de confiança da estimativa da variância residual (`nugget`), $\tau^2$.
@@ -243,14 +250,15 @@ reml_fit <- georob::georob(
 summary(reml_fit)
 ```
 
-```{r vario-reml, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.'}
+```{r vario-reml, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.', fig.width=10}
 plot(vario, type = "b", xlab = 'Distância de separação (m)', ylab = 'Semivariância')
 lines(vario_fit, col = "red", lty = 'dashed')
 lines(reml_fit, col = "blue", lty = 'dashed')
 ```
 
 ```{r}
-prof_reml_fit_scale <- georob::profilelogLik(object = reml_fit, values = data.frame(scale = seq(50, 350, by = 10)))
+prof_reml_fit_scale <- 
+  georob::profilelogLik(object = reml_fit, values = data.frame(scale = seq(50, 350, by = 10)))
 ```
 
 ```{r loglik-scale, error=TRUE, fig.asp=1, fig.cap='Perfil da função logarítmica da verossimilhança restrita para o parâmetro alcance (`scale`). A linhas verticais representam a estimativa e intervalo de confiança do parâmetro alcance. A interseção entre a linha horizontal e o perfil indica a região de 95% de confiança para o parâmetro alcance segundo o teste da razão de verossimilhança.'}
@@ -285,7 +293,7 @@ summary(reml_fit_error)
 ```
 
 
-```{r, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.'}
+```{r, fig.asp=1, fig.cap='Variograma amostral (preto) dos resíduos do modelo linear do conteúdo de areia na camada superficial do solo e a função exponencial (vermelho) a ele ajustada.', fig.width=10}
 plot(vario, type = "b", xlab = 'Distância de separação (m)', ylab = 'Semivariância', lty = 'dashed')
 lines(vario_fit, col = "magenta")
 lines(reml_fit, col = "navyblue")

@@ -17,4 +17,66 @@ de covariância e os pesos da krigagem. Variância do erro de predição. Suport
 estatística de predições espaciais. Validação cruzada. 
 </div>
 
-# 
+# Predição Espacial
+
+A krigagem é um método de predição dos valores das variáveis ambientais em locais não amostrados. Predição 
+significa dizer algo sobre um indivíduo antes de observá-lo. Grosso modo, a krigagem nada mais é do que um 
+interpolador linear, baseado nas ideias dos quadrados mínimos, que usa os dados das observações e a função de 
+covariância para fazer as predições. Num determinado ponto $\boldsymbol{s}_0$, o valor predito nada mais é do 
+que o resultado da soma linear ou média ponderada dos dados em sua vizinhança. O segredo da krigagem é a
+determinação dos pesos
+usados para calcular essa média ponderada. Sendo baseada nas ideias dos quadrados mínimos, os pesos da krigagem
+são escolhidos de maneira a minimizar a variância do erro de predição,
+
+$$\frac{1}{2} \left\{ \hat{y}(\boldsymbol{s}_0) - y(\boldsymbol{s}_0) \right\}^2$$
+
+Por minimizar a variância do erro de predição, podemos dizer que a krigagem é um interpolador ótimo -- 
+condicional aos dados e à função de covariância ajustada. Também sob esse ponto de vista, as predições da
+krigagem são não-enviesadas. Isso tudo significa dizer que a krigagem é o melhor preditor linear não enviesado 
+empírico.
+
+Existem diversos tipos de krigagem. Nesse curso vamos nos dedicar à apenas três delas: simples, ordinária e
+universal.
+
+## Krigagem simples e krigagem ordinária
+
+Segundo a terminologia geoestatística clássica, a *krigagem simples* consiste na predição espacial dos efeitos 
+aleatórios, mais especificamente, de uma superfície $\hat{B}(\boldsymbol{s})$. Conforme vimos anteriormente,
+os efeitos aleatórios são uma variável aleatória não-observável, que apresenta correlação espacial, e média 
+igual à 0 que, assim como a variância, é constante em toda a área de estudo.
+
+Contudo, em geral, nós não conhecemos a média. Nesse caso, é preciso estimar a média a partir dos dados que
+possuímos em mãos. Se nãp tivermos segurança de que a média é constante em toda a área de estudo, então podemos
+simplesmente pressupor que seja constante em curtos intervalos de distância (hipótese intrínseca). Nesse caso, 
+estaremos então fazendo a predição espacial tanto dos efeitos aleatórios como da média espacial (efeito fixo).
+Isso é a *krigagem ordinária*, e a predição espacial do sinal $Z$ em um ponto $\boldsymbol{s}_0$ será 
+
+$$\hat{Z}(\boldsymbol{s}_0) = \sum_{i=1}^n \boldsymbol{\lambda}(\boldsymbol{s}_i) Y(\boldsymbol{s}_i)$$
+
+Na equação acima, $\boldsymbol{\lambda}(\boldsymbol{s}_i)$ são os *pesos da predição*, também conhecidos como 
+*pesos da krigagem*, de cada uma das $n$ observações que possuímos em mãos. Para garantir que a predição não 
+seja enviesada, os pesos precisam somar, obrigatoriamente, 1, ou seja,
+
+$$\sum_{i=1}^n \boldsymbol{\lambda}(\boldsymbol{s}_i) = 1$$
+
+
+
+
+Quando fazemos isso, esperamos que o erro de predição -- a diferença entre o valor predito e o valor real que 
+não conhecemos -- seja igual a 0. Nesse sentido, como dissemos acima, o valor predito é não-enviezado.
+
+Já a krigagem simples é aplicada aos casos em que nós conhecemos a média espacial de $Y$, ou pelo menos podemos
+assumir que a conhecemos. Nesse caso, a média não necessáriamente precisa ser constante. Por exemplo, quando 
+calculamos as médias de cada uma das categorias do mapa pedológico e a subtraímos dos valores observados em
+cada uma das observações. Aqui é importante destacar que o processo aleatório precisa ser estacionário de
+segunda ordem.
+
+Assim como na krigagem ordinária, o valor predito na krigagem simples também é o resultado de uma média 
+ponderada. A diferença é que agora precisamos incorporar nosso conhecimento da média espacial. Isso é feito
+da seguinte maneira:
+
+$$\hat{y}(\boldsymbol{s}_0) = \sum_{i=1}^n \lambda_i y(\boldsymbol{s}_i) + \{1 - \sum_{i=1}^n \lambda_i\}\mu$$
+
+
+
+## Krigagem universal

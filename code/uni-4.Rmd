@@ -1,0 +1,20 @@
+---
+title: "Unidade IV -- Predição Espacial e Validação Estatística"
+output: 
+  bookdown::html_document2:
+    css: styles.css
+lang: pt
+bibliography: ~/Dropbox/jabref/biblio.bib
+---
+
+```{r, eval=FALSE, echo=FALSE}
+rmarkdown::render('uni-4.Rmd', encoding = 'UTF-8', output_dir = "../docs")
+```
+
+<div id="summary">
+**Temas**: O melhor preditor linear não enviesado empírico. Krigagem simples, ordinária e universal. Funções 
+de covariância e os pesos da krigagem. Variância do erro de predição. Suporte de predição. Validação 
+estatística de predições espaciais. Validação cruzada. 
+</div>
+
+# 

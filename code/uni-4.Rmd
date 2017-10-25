@@ -95,6 +95,32 @@ otimista em relação à qualidade do modelo. Por outro lado, como a validação
 depois de termos realizado as predições espaciais, sua avaliação costuma ser mais rígida, geralmente mais 
 rigorosa do que a validação cruzada.
 
+## Estatísticas do erro
+
+**Erro médio (EM)**
+
+$$\text{EM} = \frac{1}{n} \sum_{i = 1}^n \hat{z}(\boldsymbol{s}_i) - z(\boldsymbol{s}_i)$$
+
+**Erro absoluto médio (EAM)**
+
+$$\text{EAM} = \frac{1}{n} \sum_{i = 1}^n |\hat{z}(\boldsymbol{s}_i) - z(\boldsymbol{s}_i)|$$
+
+**Erro quadrático médio (EQM)**
+
+$$\text{EQM} = \frac{1}{n} \sum_{i = 1}^n [\hat{z}(\boldsymbol{s}_i) - z(\boldsymbol{s}_i)]^2$$
+
+**Raiz do erro quadrático médio (REQM)**
+
+$$\text{REQM} = \sqrt{\text{EQM}}$$
+
+**Quantidade de variância explicada (QVE)**
+
+$$\text{QVE} = 1 - \frac{\sum_{i = 1}^n [\hat{z}(\boldsymbol{s}_i) - z(\boldsymbol{s}_i)]^2}{\sum_{i = 1}^n [\hat{z}(\boldsymbol{s}_i) - \bar{z}]^2}$$
+
+**Razão média dos erros quadráticos (RMEQ)**
+
+$$\text{RMEQ} = \frac{1}{n} \sum_{i = 1}^n \frac{[\hat{z}(\boldsymbol{s}_i) - z(\boldsymbol{s}_i)]^2}{\text{VEP}}$$
+
 
 ```{r, message=FALSE, warning=FALSE}
 # Pacotes

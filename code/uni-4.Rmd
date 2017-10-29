@@ -115,7 +115,7 @@ $$\text{REQM} = \sqrt{\text{EQM}}$$
 
 **Quantidade de variância explicada (QVE)**
 
-$$\text{QVE} = 1 - \frac{\sum_{i = 1}^n [\hat{z}(\boldsymbol{s}_i) - z(\boldsymbol{s}_i)]^2}{\sum_{i = 1}^n [\hat{z}(\boldsymbol{s}_i) - \bar{z}]^2}$$
+$$\text{QVE} = 1 - \frac{\sum_{i = 1}^n [\hat{z}(\boldsymbol{s}_i) - z(\boldsymbol{s}_i)]^2}{\sum_{i = 1}^n [\bar{z} - z(\boldsymbol{s}_i)]^2}$$
 
 **Razão média dos erros quadráticos (RMEQ)**
 
@@ -214,7 +214,8 @@ vario_fit <-
 
 ```{r}
 reml_fit <- georob::georob(
-  areia_ ~ um + geo, pontos400in, locations = ~ coord_x + coord_y, variogram.model = 'RMexp', 
+  areia_ ~ um + geo, pontos400in, locations = ~ coord_x + coord_y, 
+  variogram.model = 'RMexp', 
   param = c(variance = vario_fit$variogram.object[[1]]$param[['variance']], 
             nugget = vario_fit$variogram.object[[1]]$param[['nugget']], 
             scale = vario_fit$variogram.object[[1]]$param[['scale']]),
@@ -237,12 +238,15 @@ grid <-
       um = sp::over(grid, pedologia25) %>% unlist(),
       geo = sp::over(grid, geologia50) %>% unlist()),
     proj4string = grid@proj4string)
+str(pontos400in)
 str(grid)
 ```
 
 ```{r}
 colnames(grid@coords) <- colnames(pontos400in@coords)
-pred_ponto <- predict(reml_fit, newdata = grid, control = georob::control.predict.georob(extended.output = TRUE))
+pred_ponto <- predict(
+  reml_fit, newdata = grid, type = 'signal', signif = 0.95,
+  control = georob::control.predict.georob(extended.output = TRUE))
 sp::gridded(pred_ponto) <- TRUE
 str(pred_ponto)
 ```
@@ -254,12 +258,18 @@ sp::spplot(pred_ponto, zcol = c("lower", "pred", "upper"), at = at, main = "pred
 ```
 
 ```{r}
-validacao <- georob::cv(reml_fit)
+sp::spplot(pred_ponto, zcol = 'se')
+```
+
+
+```{r}
+validacao <- georob::cv(reml_fit, nset = 375)
 summary(validacao)
 ```
 
 ```{r}
-1 - sum((validacao$pred$data - validacao$pred$pred)^2) / sum((validacao$pred$data - mean(validacao$pred$data))^2)
+1 - sum((validacao$pred$data - validacao$pred$pred)^2) / 
+  sum((validacao$pred$data - mean(validacao$pred$data))^2)
 ```
 
 ```{r, fig.asp=1}

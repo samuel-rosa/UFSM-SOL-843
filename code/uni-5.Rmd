@@ -1,0 +1,148 @@
+---
+title: "Unidade V -- Simulação espacial e propagação de incerteza"
+output: 
+  bookdown::html_document2:
+    css: styles.css
+lang: pt
+bibliography: ~/Dropbox/jabref/biblio.bib
+---
+
+```{r, eval=FALSE, echo=FALSE}
+rmarkdown::render('uni-5.Rmd', encoding = 'UTF-8', output_dir = "../docs")
+```
+
+<div id="summary">
+**Temas**: Simulação não-condicional. Simulação condicional. Simulação sequencial Gaussiana. Propagação de
+incerteza.
+</div>
+
+# Tipos de simulação espacial
+
+# Simulação sequencial Gaussiana
+
+# Propagação de incerteza
+
+# Exercícios
+
+```{r, message=FALSE, warning=FALSE}
+# Pacotes
+library(magrittr)
+library(dplyr)
+library(glue)
+library(lattice)
+library(latticeExtra)
+library(georob)
+library(sp)
+require(raster)
+
+# Sistemas de referência de coordenadas (Fonte: http://spatialreference.org/ref/epsg/)
+wgs84utm22s <- sp::CRS('+proj=utm +zone=22 +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
+sirgas2000 <- sp::CRS('+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs')
+```
+
+```{r}
+data_folder <- '../data/'
+ext <- c('dbf', 'prj', 'shp', 'shx')
+files <- glue('pedologia25.{ext}')
+download <- !all(files %in% list.files(data_folder))
+if (download) {
+  url <- 'https://github.com/samuel-rosa/UFSM-SOL-843/tree/master/data/'
+  url <- glue('{url}{files}')
+  destfile <- glue('{data_folder}{files}')
+  for (i in 1:length(files)) {
+    download.file(url = url[i], destfile = destfile[i])
+  }
+}
+```
+
+```{r}
+pedologia25 <- 
+  glue('{data_folder}pedologia25.shp') %>% 
+  raster::shapefile(stringsAsFactors = TRUE) %>% 
+  sp::spTransform(wgs84utm22s)
+str(pedologia25, 2)
+```
+
+```{r}
+geologia50 <- 
+  glue('{data_folder}geologia50.shp') %>% 
+  raster::shapefile(stringsAsFactors = TRUE) %>% 
+  sp::spTransform(wgs84utm22s)
+str(geologia50, 2)
+```
+
+```{r, message=FALSE, warning=FALSE}
+pontos400_o <- febr::observations('ctb0003', which.cols = 'all', progress = FALSE)
+pontos400_l <- febr::layers('ctb0003', which.cols = 'all', missing.data = 'keep', progress = FALSE)
+id <- c('dataset_id', 'observacao_id')
+pontos400 <- 
+  merge(pontos400_o, pontos400_l, by.x = id, by.y = id) %>% 
+  select(observacao_id, coord_x, coord_y, taxon_sibcs_2009, ca_kcl_aas, argila_, areia_)
+rm(pontos400_l, pontos400_o)
+sp::coordinates(pontos400) <- ~ coord_x + coord_y
+sp::proj4string(pontos400) <- sirgas2000
+pontos400 <- sp::spTransform(pontos400, wgs84utm22s)
+pontos400$um <- sp::over(x = pontos400, y = pedologia25) %>% unlist()
+pontos400$geo <- sp::over(x = pontos400, y = geologia50) %>% unlist()
+pontos400in <- pontos400[!is.na(pontos400$um) & !is.na(pontos400$geo), ]
+```
+
+```{r}
+rf_fit <- randomForest::randomForest(areia_ ~ um + geo, pontos400in@data)
+pontos400in@data$rf <- rf_fit$predicted
+lm(areia_ ~ rf, pontos400in@data) %>% summary()
+```
+
+```{r}
+grid <- sp::spsample(pedologia25, 10000, type = 'regular')
+grid <- 
+  sp::SpatialPointsDataFrame(
+    coords = grid@coords, 
+    data = data.frame(
+      um = sp::over(grid, pedologia25) %>% unlist(),
+      geo = sp::over(grid, geologia50) %>% unlist()),
+    proj4string = grid@proj4string)
+```
+
+```{r}
+grid$rf <- raster::predict(rf_fit, grid)
+spplot(grid, 'rf')
+```
+
+```{r}
+variograma <- gstat::variogram(areia_ ~ rf, pontos400in)
+plot(variograma, ylab = "Semivariância", xlab = "Distância (m)")
+```
+
+```{r}
+m_exp <- gstat::vgm(psill = 30000 - 5000, model = 'Exp', range = 300, nugget = 5000)
+m_exp <- gstat::fit.variogram(variograma, m_exp)
+plot(variograma, ylab = "Semivariância", xlab = "Distância (m)", model = m_exp)
+```
+
+
+
+```{r}
+# Conditional simulation
+cond_sim <- gstat::krige(areia_ ~ rf, pontos400in, grid, model = m_exp, nmax = 15, nsim = 8)
+gridded(cond_sim) <- TRUE
+spplot(cond_sim)
+```
+
+```{r}
+# Unconditional simulation
+beta <- lm(areia_ ~ rf, pontos400in@data) %>% coef()
+g <- gstat::gstat(formula = z ~ rf, dummy = TRUE, model = m_exp, nmax = 15, beta = beta)
+uncond_sim <- predict(g, grid, nsim = 8)
+gridded(uncond_sim) <- TRUE
+spplot(uncond_sim)
+```
+
+```{r, fig.asp=TRUE}
+uncond_sim_prop <- 
+  calc(stack(uncond_sim), function (x) x > 500) %>% 
+  calc(sum) %>% 
+  calc(function (x) x / 8)
+plot(uncond_sim_prop, asp = 1)
+```
+

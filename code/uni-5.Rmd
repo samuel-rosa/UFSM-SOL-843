@@ -12,8 +12,8 @@ rmarkdown::render('uni-5.Rmd', encoding = 'UTF-8', output_dir = "../docs")
 ```
 
 <div id="summary">
-**Temas**: Simulação não-condicional. Simulação condicional. Simulação sequencial Gaussiana. Propagação de
-incerteza.
+**Temas**: Simulação versus predição. Modelo de incerteza local. Modelo de incerteza espacial. Simulação
+não-condicional. Simulação condicional. Simulação sequencial Gaussiana. Propagação de incerteza.
 </div>
 
 # Tipos de simulação espacial
@@ -34,6 +34,7 @@ library(latticeExtra)
 library(georob)
 library(sp)
 require(raster)
+library(caret)
 
 # Sistemas de referência de coordenadas (Fonte: http://spatialreference.org/ref/epsg/)
 wgs84utm22s <- sp::CRS('+proj=utm +zone=22 +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
@@ -77,7 +78,7 @@ pontos400_l <- febr::layers('ctb0003', which.cols = 'all', missing.data = 'keep'
 id <- c('dataset_id', 'observacao_id')
 pontos400 <- 
   merge(pontos400_o, pontos400_l, by.x = id, by.y = id) %>% 
-  select(observacao_id, coord_x, coord_y, taxon_sibcs_2009, ca_kcl_aas, argila_, areia_)
+  dplyr::select(observacao_id, coord_x, coord_y, taxon_sibcs_2009, ca_kcl_aas, argila_, areia_)
 rm(pontos400_l, pontos400_o)
 sp::coordinates(pontos400) <- ~ coord_x + coord_y
 sp::proj4string(pontos400) <- sirgas2000
@@ -88,9 +89,25 @@ pontos400in <- pontos400[!is.na(pontos400$um) & !is.na(pontos400$geo), ]
 ```
 
 ```{r}
-rf_fit <- randomForest::randomForest(areia_ ~ um + geo, pontos400in@data)
-pontos400in@data$rf <- rf_fit$predicted
-lm(areia_ ~ rf, pontos400in@data) %>% summary()
+spplot(
+  pedologia25, alpha.regions = 0.3, colorkey = FALSE) +
+  as.layer(xyplot(coord_y ~ coord_x, data = as.data.frame(pontos400in@coords), col = 'red', pch = 17))
+```
+
+http://topepo.github.io/caret/available-models.html
+
+```{r}
+modelLookup('rf')
+```
+
+```{r, warning=FALSE, message=FALSE}
+rf_fit <- train(areia_ ~ um + geo + coord_x + coord_y, as.data.frame(pontos400in), method = "rf")
+rf_fit
+```
+
+```{r}
+pontos400in@data$rf <- rf_fit$finalModel$predicted
+lm(areia_ ~ rf, pontos400in@data) %>% plot()
 ```
 
 ```{r}
@@ -102,6 +119,7 @@ grid <-
       um = sp::over(grid, pedologia25) %>% unlist(),
       geo = sp::over(grid, geologia50) %>% unlist()),
     proj4string = grid@proj4string)
+colnames(grid@coords) <- colnames(pontos400in@coords)
 ```
 
 ```{r}
@@ -110,14 +128,30 @@ spplot(grid, 'rf')
 ```
 
 ```{r}
-variograma <- gstat::variogram(areia_ ~ rf, pontos400in)
-plot(variograma, ylab = "Semivariância", xlab = "Distância (m)")
+lags <- seq(0, 1500, length.out = 15)
+sample.variogram(
+  areia_ ~ rf, data = pontos400in, locations = ~ coord_x + coord_y, lag.dist.def = lags,
+  xy.angle.def = c(0, 22.5, 67.5, 112.5, 157.5, 180)) %>% 
+  plot(type = "b")
 ```
 
 ```{r}
-m_exp <- gstat::vgm(psill = 30000 - 5000, model = 'Exp', range = 300, nugget = 5000)
-m_exp <- gstat::fit.variogram(variograma, m_exp)
-plot(variograma, ylab = "Semivariância", xlab = "Distância (m)", model = m_exp)
+vario <- 
+  sample.variogram(
+    areia_ ~ rf, data = pontos400in, locations = ~ coord_x + coord_y, lag.dist.def = lags)
+plot(vario)
+```
+
+```{r}
+reml_fit <- georob(
+  areia_ ~ rf, pontos400in, locations = ~ coord_x + coord_y, 
+  variogram.model = 'RMexp', param = c(variance = 25000, nugget = 5000, scale = 300), tuning.psi = 1000)
+summary(reml_fit)
+```
+
+```{r}
+plot(vario)
+lines(reml_fit)
 ```
 
 

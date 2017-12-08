@@ -4,7 +4,6 @@ output:
   bookdown::html_document2:
     css: styles.css
 lang: pt
-bibliography: ~/Dropbox/jabref/biblio.bib
 ---
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -101,7 +100,7 @@ modelLookup('rf')
 ```
 
 ```{r, warning=FALSE, message=FALSE}
-rf_fit <- train(areia_ ~ um + geo + coord_x + coord_y, as.data.frame(pontos400in), method = "rf")
+rf_fit <- train(areia_ ~ um + geo, as.data.frame(pontos400in), method = "rf")
 rf_fit
 ```
 
@@ -157,6 +156,8 @@ lines(reml_fit)
 
 
 ```{r}
+m_exp <- gstat::vgm(psill = 28740.57, model = 'Exp', range = 220.38, nugget = 966.26)
+
 # Conditional simulation
 cond_sim <- gstat::krige(areia_ ~ rf, pontos400in, grid, model = m_exp, nmax = 15, nsim = 8)
 gridded(cond_sim) <- TRUE
